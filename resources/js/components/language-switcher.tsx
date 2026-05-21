@@ -1,5 +1,6 @@
 import { usePage, Link } from '@inertiajs/react';
 import { Globe } from 'lucide-react';
+import { route } from 'ziggy-js';
 import {
     DropdownMenu,
     DropdownMenuContent,

@@ -475,6 +475,7 @@
     },
     "expense": {
         "no": "ល.រ",
+        "unit": "ឯកតា",
         "all_expenses": "ចំណាយទាំងអស់",
         "search_placeholder": "ស្វែងរកចំណាយ...",
         "expense_name": "ឈ្មោះចំណាយ",
@@ -521,6 +522,8 @@
         "employee_created": "បានបង្កើតបុគ្គលិក",
         "employee_updated": "បានកែប្រែបុគ្គលិក",
         "month": "ខែ",
+        "year": "ឆ្នាំ",
+        "no_hire_date": "មិនទាន់មានថ្ងៃចូលធ្វើការ",
         "staff_member": "បុគ្គលិក",
         "employee_title": "បុគ្គលិកទាំងអស់",
         "employee_description": "គ្រប់គ្រងប្រវត្តិបុគ្គលិក",
@@ -559,7 +562,9 @@
         "delete_confirmation_description": "សកម្មភាពនេះមិនអាចកែប្រែវិញបានទេ។",
         "upload_photo": "បញ្ចូលរូបភាព",
         "no_employees": "មិនទាន់មានបុគ្គលិក",
-        "export": "បញ្ចេញ"
+        "export": "បញ្ចេញ",
+        "date_hire": "ថ្ងៃចូលធ្វើការ",
+        "yearly_bonus": "ប្រាក់រង្វាន់ប្រចាំឆ្នាំ"
     },
     "income": {
         "income_statement": "របាយការណ៍ចំណេញ-ខាត",

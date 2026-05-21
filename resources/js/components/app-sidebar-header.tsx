@@ -22,7 +22,7 @@ export function AppSidebarHeader({
 
     const [language, setLanguage] = useState(i18n.language || 'en');
 
-    const handleLanguageChange = (value) => {
+    const handleLanguageChange = (value: string) => {
         setLanguage(value);
         i18n.changeLanguage(value);
         localStorage.setItem('lang', value);

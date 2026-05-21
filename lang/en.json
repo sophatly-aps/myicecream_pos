@@ -485,6 +485,7 @@
     },
     "expense": {
         "no": "#",
+        "unit": "Unit",
         "all_expenses": "All Expenses",
         "search_placeholder": "Search Expenses...",
         "expense_name": "Expanse Name",
@@ -529,6 +530,8 @@
     },
     "employee": {
         "month": "mo",
+        "year": "yr",
+        "no_hire_date": "No hire date",
         "employee_created": "Employee Created",
         "staff_member": "Staff Member",
         "employee_title": "Employees",
@@ -568,7 +571,9 @@
         "delete_confirmation_description": "This action cannot be undone.",
         "upload_photo": "Upload Photo",
         "no_employees": "No employees found",
-        "export": "Export"
+        "export": "Export",
+        "date_hire": "Date of Hire",
+        "yearly_bonus": "Yearly Bonus"
     },
     "income": {
         "income_statement": "Income Statement",

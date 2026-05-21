@@ -225,13 +225,12 @@ export default function Index({ users, availableRoles }: Props) {
                                     setIsDragging(false);
 
                                     const file = e.dataTransfer.files?.[0];
+                                    if (!file) return;
 
                                     if (!file.type.startsWith("image/")) {
                                         alert("Only images allowed");
                                         return;
                                     }
-
-                                    if (!file) return;
 
                                     setForm(f => ({ ...f, photo: file }));
                                     setPreview(URL.createObjectURL(file));
@@ -251,13 +250,12 @@ export default function Index({ users, availableRoles }: Props) {
                                     hidden
                                     onChange={(e: ChangeEvent<HTMLInputElement>) => {
                                         const file = e.target.files?.[0];
+                                        if (!file) return;
 
                                         if (!file.type.startsWith("image/")) {
                                             alert("Only images allowed");
                                             return;
                                         }
-
-                                        if (!file) return;
 
                                         setForm(f => ({ ...f, photo: file }));
                                         setPreview(URL.createObjectURL(file));

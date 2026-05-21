@@ -3,13 +3,13 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\Setting;
 use App\Models\Expense;
-use App\Models\User;
-use Inertia\Inertia;
-use Auth;
+use App\Models\Setting;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Response;
+use Inertia\Inertia;
+use Mpdf\Mpdf;
 
 class ExpenseController extends Controller
 {
@@ -24,7 +24,7 @@ class ExpenseController extends Controller
         if ($request->filled('preset') && $request->preset !== 'custom' && $request->preset !== 'all') {
             $preset = $request->preset;
             $tz = 'Asia/Phnom_Penh';
-            
+
             if ($preset === 'today') {
                 $query->whereDate('expense_date', Carbon::today($tz));
             } elseif ($preset === 'yesterday') {
@@ -32,17 +32,17 @@ class ExpenseController extends Controller
             } elseif ($preset === 'last_week') {
                 $query->whereBetween('expense_date', [
                     Carbon::today($tz)->subWeek()->startOfWeek(),
-                    Carbon::today($tz)->subWeek()->endOfWeek()
+                    Carbon::today($tz)->subWeek()->endOfWeek(),
                 ]);
             } elseif ($preset === 'last_month') {
                 $query->whereBetween('expense_date', [
                     Carbon::today($tz)->subMonth()->startOfMonth(),
-                    Carbon::today($tz)->subMonth()->endOfMonth()
+                    Carbon::today($tz)->subMonth()->endOfMonth(),
                 ]);
             } elseif ($preset === 'this_month') {
                 $query->whereBetween('expense_date', [
                     Carbon::today($tz)->startOfMonth(),
-                    Carbon::today($tz)->endOfMonth()
+                    Carbon::today($tz)->endOfMonth(),
                 ]);
             }
         } else {
@@ -56,15 +56,15 @@ class ExpenseController extends Controller
 
         $expenses = $query->get()->map(function ($expense) {
             return [
-                'id'           => $expense->id,
-                'user_name'     => $expense->user->name,
+                'id' => $expense->id,
+                'user_name' => $expense->user->name,
                 'expense_date' => $expense->expense_date,
                 'expense_name' => $expense->expense_name,
-                'description'  => $expense->description,
+                'description' => $expense->description,
                 'expense_amount' => $expense->expense_amount,
-                'created_at'   => $expense->created_at->format('d-m-Y'),
-                'status'       => $expense->status,
-            ];  
+                'created_at' => $expense->created_at->format('d-m-Y'),
+                'status' => $expense->status,
+            ];
         });
 
         return Inertia::render('expense/index', [
@@ -83,7 +83,7 @@ class ExpenseController extends Controller
         if ($request->filled('preset') && $request->preset !== 'custom' && $request->preset !== 'all') {
             $preset = $request->preset;
             $tz = 'Asia/Phnom_Penh';
-            
+
             if ($preset === 'today') {
                 $query->whereDate('expense_date', Carbon::today($tz));
             } elseif ($preset === 'yesterday') {
@@ -91,17 +91,17 @@ class ExpenseController extends Controller
             } elseif ($preset === 'last_week') {
                 $query->whereBetween('expense_date', [
                     Carbon::today($tz)->subWeek()->startOfWeek(),
-                    Carbon::today($tz)->subWeek()->endOfWeek()
+                    Carbon::today($tz)->subWeek()->endOfWeek(),
                 ]);
             } elseif ($preset === 'last_month') {
                 $query->whereBetween('expense_date', [
                     Carbon::today($tz)->subMonth()->startOfMonth(),
-                    Carbon::today($tz)->subMonth()->endOfMonth()
+                    Carbon::today($tz)->subMonth()->endOfMonth(),
                 ]);
             } elseif ($preset === 'this_month') {
                 $query->whereBetween('expense_date', [
                     Carbon::today($tz)->startOfMonth(),
-                    Carbon::today($tz)->endOfMonth()
+                    Carbon::today($tz)->endOfMonth(),
                 ]);
             }
         } else {
@@ -117,21 +117,23 @@ class ExpenseController extends Controller
 
         if ($request->query('format') === 'excel') {
             $headers = [
-                "Content-type"        => "text/csv; charset=UTF-8",
-                "Content-Disposition" => "attachment; filename=expenses_" . date('Ymd_His') . ".csv",
-                "Pragma"              => "no-cache",
-                "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
-                "Expires"             => "0"
+                'Content-type' => 'text/csv; charset=UTF-8',
+                'Content-Disposition' => 'attachment; filename=expenses_'.date('Ymd_His').'.csv',
+                'Pragma' => 'no-cache',
+                'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+                'Expires' => '0',
             ];
-            
-            $callback = function() use($expenses, $currency) {
 
-                if(ob_get_level() > 0) ob_end_clean();
+            $callback = function () use ($expenses, $currency) {
+
+                if (ob_get_level() > 0) {
+                    ob_end_clean();
+                }
                 $file = fopen('php://output', 'w');
                 // Add BOM for Excel UTF-8 support
-                fputs($file, $bom =(chr(0xEF) . chr(0xBB) . chr(0xBF)));
-                fputcsv($file, ['ID', 'Date', 'Expense Name', 'Amount (' . $currency . ')', 'Status', 'User', 'Description']);
-                
+                fwrite($file, $bom = (chr(0xEF).chr(0xBB).chr(0xBF)));
+                fputcsv($file, ['ID', 'Date', 'Expense Name', 'Amount ('.$currency.')', 'Status', 'User', 'Description']);
+
                 foreach ($expenses as $expense) {
                     fputcsv($file, [
                         $expense->id,
@@ -140,49 +142,50 @@ class ExpenseController extends Controller
                         $expense->expense_amount,
                         $expense->status,
                         $expense->user->name ?? '',
-                        $expense->description
+                        $expense->description,
                     ]);
                 }
                 fclose($file);
             };
-            
-            return \Illuminate\Support\Facades\Response::stream($callback, 200, $headers);
+
+            return Response::stream($callback, 200, $headers);
         }
 
         if ($request->query('format') === 'pdf') {
             $html = '<h2 style="text-align: center;">Expenses Report</h2>';
             $html .= '<table border="1" cellpadding="5" cellspacing="0" style="width: 100%; border-collapse: collapse; font-family: sans-serif; font-size: 12px;">';
             $html .= '<tr style="background-color: #f2f2f2;"><th>ID</th><th>Date</th><th>Expense Name</th><th>Amount</th><th>Status</th><th>User</th></tr>';
-            
+
             $totalAmount = 0;
             foreach ($expenses as $expense) {
                 $totalAmount += $expense->expense_amount;
                 $html .= '<tr>';
-                $html .= '<td>' . $expense->id . '</td>';
-                $html .= '<td>' . $expense->expense_date . '</td>';
-                $html .= '<td>' . $expense->expense_name . '</td>';
-                $html .= '<td style="text-align: right;">' . $currency . number_format($expense->expense_amount, 2) . '</td>';
-                $html .= '<td><span style="text-transform: uppercase;">' . $expense->status . '</span></td>';
-                $html .= '<td>' . ($expense->user->name ?? '') . '</td>';
+                $html .= '<td>'.$expense->id.'</td>';
+                $html .= '<td>'.$expense->expense_date.'</td>';
+                $html .= '<td>'.$expense->expense_name.'</td>';
+                $html .= '<td style="text-align: right;">'.$currency.number_format($expense->expense_amount, 2).'</td>';
+                $html .= '<td><span style="text-transform: uppercase;">'.$expense->status.'</span></td>';
+                $html .= '<td>'.($expense->user->name ?? '').'</td>';
                 $html .= '</tr>';
             }
-            
+
             $html .= '<tr><td colspan="3" style="text-align: right; font-weight: bold;">Total:</td>';
-            $html .= '<td style="text-align: right; font-weight: bold;">' . $currency . number_format($totalAmount, 2) . '</td>';
+            $html .= '<td style="text-align: right; font-weight: bold;">'.$currency.number_format($totalAmount, 2).'</td>';
             $html .= '<td colspan="2"></td></tr>';
-            
+
             $html .= '</table>';
 
-            $mpdf = new \Mpdf\Mpdf([
+            $mpdf = new Mpdf([
                 'tempDir' => storage_path('app/temp'),
                 'autoScriptToLang' => true,
-                'autoLangToFont'   => true,
+                'autoLangToFont' => true,
             ]);
             $mpdf->WriteHTML($html);
+
             return response()->streamDownload(function () use ($mpdf) {
                 echo $mpdf->Output('', 'S');
-            }, 'expenses_' . date('Ymd_His') . '.pdf');
-           
+            }, 'expenses_'.date('Ymd_His').'.pdf');
+
         }
 
         return back();
@@ -207,11 +210,12 @@ class ExpenseController extends Controller
             'expense_amount' => 'required',
             'description' => 'nullable',
             'status' => 'required',
-        ],[
+            'unit' => 'nullable',
+        ], [
             'expense_name.required' => 'Expense amount is required',
             'expense_date.required' => 'Expense Date is required',
             'expense_amount.required' => 'Expense Amount is required',
-            'status' => 'Expense Status is required'
+            'status' => 'Expense Status is required',
         ]);
 
         $expense = Expense::create([
@@ -220,7 +224,8 @@ class ExpenseController extends Controller
             'expense_date' => $validated['expense_date'],
             'expense_amount' => $validated['expense_amount'],
             'description' => $validated['description'],
-            'status' => $validated['status']
+            'status' => $validated['status'],
+            'unit' => $validated['unit'],
         ]);
 
         return redirect()->route('expense.index')->with('success', 'Expense created successfully');
@@ -253,11 +258,12 @@ class ExpenseController extends Controller
             'expense_amount' => 'required',
             'description' => 'nullable',
             'status' => 'required',
-        ],[
+            'unit' => 'nullable',
+        ], [
             'expense_name.required' => 'Expense amount is required',
             'expense_date.required' => 'Expense Date is required',
             'expense_amount.required' => 'Expense Amount is required',
-            'status' => 'Expense Status is required'
+            'status' => 'Expense Status is required',
         ]);
 
         $expense = Expense::findOrFail($id)->update([
@@ -266,7 +272,8 @@ class ExpenseController extends Controller
             'expense_date' => $validated['expense_date'],
             'expense_amount' => $validated['expense_amount'],
             'description' => $validated['description'],
-            'status' => $validated['status']
+            'status' => $validated['status'],
+            'unit' => $validated['unit'],
         ]);
 
         return redirect()->route('expense.index')->with('success', 'Expense updated successfully');
@@ -278,6 +285,7 @@ class ExpenseController extends Controller
     public function destroy(string $id)
     {
         $expense = Expense::findOrFail($id)->delete();
+
         return redirect()->route('expense.index')->with('success', 'Expense deleted successfully');
     }
 }
