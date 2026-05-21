@@ -103,7 +103,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware(['permission:users.edit'])->get('/users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
     Route::middleware(['permission:users.edit'])->put('/users/{user}', [UserController::class, 'update'])->name('users.permission.update');
 
-    Route::middleware(['permission:users.delete'])->delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
+    Route::middleware(['permission:users.delete'])->delete('/users/{user}', [UserController::class, 'destroy'])->name('users.permission.delete');
 
     Route::middleware(['permission:roles.view'])->get('/roles', [RoleController::class, 'index']);
     Route::middleware(['permission:roles.create'])->post('/roles', [RoleController::class, 'store']);
