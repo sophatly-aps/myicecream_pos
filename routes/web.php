@@ -91,7 +91,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('income-statement', [IncomeStatementController::class, 'index'])->name('income.statement.index');
     Route::get('account-receivable', [AccountReceivableController::class, 'index'])->name('account.receivable.index');
 
-    Route::delete('/users/{id}', [UserController::class, 'destroy'])->name('users.destroy');
+    Route::delete('/users/{id}', [UserController::class, 'destroy'])->name('users.delete');
     Route::put('/users/{id}/restore', [UserController::class, 'restore'])->name('users.restore');
     Route::delete('/users/{id}/force', [UserController::class, 'forceDelete'])->name('users.forceDelete');
 
@@ -101,7 +101,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware(['permission:users.create'])->post('/users', [UserController::class, 'store'])->name('users.store');
 
     Route::middleware(['permission:users.edit'])->get('/users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
-    Route::middleware(['permission:users.edit'])->put('/users/{user}', [UserController::class, 'update'])->name('users.update');
+    Route::middleware(['permission:users.edit'])->put('/users/{user}', [UserController::class, 'update'])->name('users.permission.update');
 
     Route::middleware(['permission:users.delete'])->delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
 
