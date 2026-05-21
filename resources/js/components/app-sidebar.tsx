@@ -121,13 +121,14 @@ export function AppSidebar() {
         {
             title: t('sidebar.advance_salary'),
             href: '/advance-salary',
-            icon: HandCoins
+            icon: HandCoins,
+            permission: "advance_salaries.view",
         },
         {
             title: t('sidebar.payslips'),
             href: '/payslips',
             icon: Banknote,
-            // permission: "payslips.view", // Temporarily removed to ensure visibility
+            permission: "payslips.view",
         },
         {
             title: t('sidebar.users'),

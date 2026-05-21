@@ -77,17 +77,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('sales', SaleController::class);
 
     // Purchase History routes
-    Route::resource('purchase-history',PurchaseHistoryController::class);
+    
     Route::get('/purchase-data', [PurchaseHistoryController::class, 'data'])->name('purchase-data');
     Route::get('/purchase/{id}', [PurchaseHistoryController::class, 'show'])
     ->name('purchase.show');
     Route::delete('/purchase-history/{id}', [PurchaseHistoryController::class, 'destroy'])
-    ->name('purchase-history.destroy');
+    ->name('purchase-history-page.destroy');
     Route::post('/purchase-history/{id}/restore', [PurchaseHistoryController::class, 'restore'])
     ->name('purchase-history.restore');
 
     Route::delete('/purchase-history/{id}/force', [PurchaseHistoryController::class, 'forceDelete'])
     ->name('purchase-history.force');
+
+    Route::resource('purchase-history',PurchaseHistoryController::class);
 
     Route::get('income-statement', [IncomeStatementController::class, 'index'])->name('income.statement.index');
     Route::get('account-receivable', [AccountReceivableController::class, 'index'])->name('account.receivable.index');

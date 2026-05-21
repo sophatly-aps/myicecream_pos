@@ -6,6 +6,7 @@ interface Product {
     name: string;
     selling_price: number;
     image: string;
+    qty?: number;
 }
 
 interface Props {

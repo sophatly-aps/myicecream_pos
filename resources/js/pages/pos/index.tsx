@@ -100,7 +100,7 @@ export default function Index({ categories, products, customers, settings }: Pro
     const taxAmount = (subTotal * taxPercent) / 100;
 
     // 3. Final Grand Total
-    const grandTotal = (subTotal + taxAmount + Number(transportFee)) - Number(discountAmount);
+    const grandTotal = (subTotal + taxAmount) - Number(discountAmount) - Number(transportFee);
 
     // 4. Change Amount
     const changeAmount = paidAmount > 0 ? paidAmount - grandTotal : 0;
@@ -334,17 +334,34 @@ export default function Index({ categories, products, customers, settings }: Pro
                                     <span className="text-xs text-gray-500">{currency}{item.selling_price} / {item.unit}</span>
 
                                     {/* Quantity Controls */}
-                                    <div className="flex items-center gap-3 bg-white border rounded-lg p-1 shadow-sm">
+                                    <div className="flex items-center gap-2 bg-white border rounded-lg p-1 shadow-sm">
                                         <button
                                             onClick={() => removeFromCart(item.id)}
-                                            className="w-6 h-6 flex items-center justify-center rounded hover:bg-red-100 text-red-600 transition-colors"
+                                            className="w-6 h-6 flex items-center justify-center rounded hover:bg-red-100 text-red-600 transition-colors font-bold"
                                         >
                                             -
                                         </button>
-                                        <span className="text-sm font-bold min-w-[20px] text-center">{item.qty}</span>
+                                        <Input
+                                            type="number"
+                                            min="1"
+                                            value={item.qty}
+                                            onChange={(e) => {
+                                                const val = Number(e.target.value);
+                                                if (val >= 1) {
+                                                    setCart((prevCart) =>
+                                                        prevCart.map((cartItem) =>
+                                                            cartItem.id === item.id
+                                                                ? { ...cartItem, qty: val }
+                                                                : cartItem
+                                                        )
+                                                    );
+                                                }
+                                            }}
+                                            className="w-12 h-6 text-center text-xs font-bold p-0 border-none focus-visible:ring-0 focus-visible:ring-offset-0 bg-gray-50 rounded"
+                                        />
                                         <button
                                             onClick={() => addToCart(item)}
-                                            className="w-6 h-6 flex items-center justify-center rounded hover:bg-green-100 text-green-600 transition-colors"
+                                            className="w-6 h-6 flex items-center justify-center rounded hover:bg-green-100 text-green-600 transition-colors font-bold"
                                         >
                                             +
                                         </button>
@@ -598,7 +615,7 @@ export default function Index({ categories, products, customers, settings }: Pro
                                     {Number(lastOrder.transport_fee) > 0 && (
                                         <div className="flex justify-between">
                                             <span>{t('pos.transport_fee')}</span>
-                                            <span className="font-bold text-gray-800">+{currency}{Number(lastOrder.transport_fee).toFixed(2)}</span>
+                                            <span className="font-bold text-red-500">-{currency}{Number(lastOrder.transport_fee).toFixed(2)}</span>
                                         </div>
                                     )}
                                     <div className="flex justify-between border-t-2 border-gray-800 pt-2 mt-2">
