@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState, Fragment } from "react";
 import axios from "axios";
 import { route } from "ziggy-js";
 import {
@@ -8,7 +8,7 @@ import {
     flexRender,
     ColumnDef,
 } from "@tanstack/react-table";
-import { Trash, Eye, Pencil, RotateCcw } from "lucide-react";
+import { Trash, Eye, Pencil, RotateCcw, ChevronDown, ChevronRight } from "lucide-react";
 import { Dialog, DialogClose, DialogContent } from "@/components/ui/dialog";
 import {
     AlertDialog,
@@ -29,9 +29,10 @@ type Purchase = {
     purchase_date: string;
     total_amount: number;
     payment_status: string;
+    details?: any[];
 };
 
-export default function PurchaseHistory({ currency }: any) {
+export default function PurchaseHistory({ currency, purchase_items }: any) {
 
     const { t } = useTranslation();
 
@@ -55,6 +56,12 @@ export default function PurchaseHistory({ currency }: any) {
     const [alertAction, setAlertAction] = useState<"restore" | "force_delete" | "trash" | null>(null);
     const [alertPurchaseId, setAlertPurchaseId] = useState<number | null>(null);
     const [isAlertOpen, setIsAlertOpen] = useState(false);
+
+    const [expandedRows, setExpandedRows] = useState<Record<number, boolean>>({});
+
+    const toggleRow = (id: number) => {
+        setExpandedRows(prev => ({ ...prev, [id]: !prev[id] }));
+    };
 
     const openAlert = (action: "restore" | "force_delete" | "trash", id: number) => {
         setAlertAction(action);
@@ -148,7 +155,16 @@ export default function PurchaseHistory({ currency }: any) {
             id: "index",
             header: t('purchase_history.no'),
             cell: ({ row }) => {
-                return <span>{row.index + 1}</span>
+                const isExpanded = expandedRows[row.original.id];
+                return (
+                    <div 
+                        className="flex items-center gap-2 cursor-pointer select-none text-indigo-600 font-bold" 
+                        onClick={() => toggleRow(row.original.id)}
+                    >
+                        {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                        <span>{row.index + 1}</span>
+                    </div>
+                )
             }
         },
         {
@@ -380,22 +396,54 @@ export default function PurchaseHistory({ currency }: any) {
                                 </tr>
                             ) : (
                                 table.getRowModel().rows.map((row) => (
-                                    <tr
-                                        key={row.id}
-                                        className="hover:bg-gray-50"
-                                    >
-                                        {row.getVisibleCells().map((cell) => (
-                                            <td
-                                                key={cell.id}
-                                                className="p-3 border-b"
-                                            >
-                                                {flexRender(
-                                                    cell.column.columnDef.cell,
-                                                    cell.getContext()
-                                                )}
-                                            </td>
-                                        ))}
-                                    </tr>
+                                    <Fragment key={row.id}>
+                                        <tr
+                                            className="hover:bg-gray-50"
+                                        >
+                                            {row.getVisibleCells().map((cell) => (
+                                                <td
+                                                    key={cell.id}
+                                                    className="p-3 border-b"
+                                                >
+                                                    {flexRender(
+                                                        cell.column.columnDef.cell,
+                                                        cell.getContext()
+                                                    )}
+                                                </td>
+                                            ))}
+                                        </tr>
+                                        {expandedRows[row.original.id] && (
+                                            <tr className="bg-gray-50 border-b">
+                                                <td colSpan={5} className="p-4 bg-gray-100">
+                                                    <table className="w-full text-sm bg-white border rounded shadow-sm overflow-hidden">
+                                                        <thead className="bg-gray-200 text-gray-700">
+                                                            <tr>
+                                                                <th className="text-left p-2 border-b">{t('purchase_history.item')}</th>
+                                                                <th className="text-center p-2 border-b">{t('purchase_history.qty')}</th>
+                                                                <th className="text-right p-2 border-b">{t('purchase_history.price')}</th>
+                                                                <th className="text-right p-2 border-b">{t('purchase_history.amount')}</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            {row.original.details?.map((detail: any) => (
+                                                                <tr key={detail.id} className="border-t hover:bg-gray-50">
+                                                                    <td className="p-2 font-medium">{detail.purchase_item?.name}</td>
+                                                                    <td className="text-center p-2">{detail.qty} {detail.unit}</td>
+                                                                    <td className="text-right p-2 text-indigo-700 font-semibold">{currency}{Number(detail.price).toLocaleString()}</td>
+                                                                    <td className="text-right p-2 font-bold">{currency}{(Number(detail.qty) * Number(detail.price)).toLocaleString()}</td>
+                                                                </tr>
+                                                            ))}
+                                                            {(!row.original.details || row.original.details.length === 0) && (
+                                                                <tr>
+                                                                    <td colSpan={4} className="text-center p-4 text-gray-500">{t('purchase_history.no_data_found')}</td>
+                                                                </tr>
+                                                            )}
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        )}
+                                    </Fragment>
                                 ))
                             )}
                         </tbody>
@@ -454,13 +502,25 @@ export default function PurchaseHistory({ currency }: any) {
 
                                     <div className="text-right text-sm">
                                         <p>{t('purchase_history.purchase_date')}</p>
-                                        <p className="font-semibold">
-                                            {new Date(selectedPurchase.purchase_date).toLocaleDateString('km-KH', {
-                                                day: '2-digit',
-                                                year: 'numeric',
-                                                month: 'short',
-                                            })}
-                                        </p>
+                                        {mode === "edit" ? (
+                                            <input
+                                                type="date"
+                                                value={selectedPurchase.purchase_date ? selectedPurchase.purchase_date.split('T')[0] : ''}
+                                                onChange={(e) => setSelectedPurchase({
+                                                    ...selectedPurchase,
+                                                    purchase_date: e.target.value
+                                                })}
+                                                className="border rounded p-1 mt-1 text-black"
+                                            />
+                                        ) : (
+                                            <p className="font-semibold">
+                                                {new Date(selectedPurchase.purchase_date).toLocaleDateString('km-KH', {
+                                                    day: '2-digit',
+                                                    year: 'numeric',
+                                                    month: 'short',
+                                                })}
+                                            </p>
+                                        )}
                                     </div>
 
                                 </div>
@@ -468,6 +528,35 @@ export default function PurchaseHistory({ currency }: any) {
 
                             {/* ================= BODY ================= */}
                             <div className="p-6">
+
+                                {/* ================= SUMMARY ================= */}
+                                <div className="flex justify-end mb-6">
+
+                                    <div className="w-full md:w-80 space-y-2 text-sm">
+
+                                        <div className="flex justify-between">
+                                            <span>{t('purchase_history.transport_fee')}</span>
+                                            <span>{currency}{Number(selectedPurchase.transport_fee || 0).toLocaleString()}</span>
+                                        </div>
+
+                                        <div className="flex justify-between">
+                                            <span>{t('purchase_history.tax')}</span>
+                                            <span>{currency}{Number(selectedPurchase.tax_amount || 0).toLocaleString()}</span>
+                                        </div>
+
+                                        <div className="flex justify-between">
+                                            <span>{t('purchase_history.discount')}</span>
+                                            <span>-{currency}{Number(selectedPurchase.discount_amount || 0).toLocaleString()}</span>
+                                        </div>
+
+                                        <div className="flex justify-between font-bold text-lg border-t pt-2">
+                                            <span>{t('purchase_history.grand_total')}</span>
+                                            <span>{currency}{finalTotal().toLocaleString()}</span>
+                                        </div>
+
+                                    </div>
+
+                                </div>
 
                                 {/* ITEMS TABLE */}
                                 <div className="border rounded-lg overflow-hidden">
@@ -481,6 +570,7 @@ export default function PurchaseHistory({ currency }: any) {
                                                 <th className="text-center p-3">{t('purchase_history.unit')}</th>
                                                 <th className="text-right p-3">{t('purchase_history.price')}</th>
                                                 <th className="text-right p-3">{t('purchase_history.amount')}</th>
+                                                {mode === "edit" && <th className="text-center p-3"></th>}
                                             </tr>
                                         </thead>
 
@@ -547,40 +637,60 @@ export default function PurchaseHistory({ currency }: any) {
                                                         {(Number(item.qty) * Number(item.price)).toLocaleString()}
                                                     </td>
 
+                                                    {mode === "edit" && (
+                                                        <td className="text-center p-3">
+                                                            <button
+                                                                onClick={() => {
+                                                                    const updated = { ...selectedPurchase };
+                                                                    updated.details = updated.details.filter((d: any) => d.id !== item.id);
+                                                                    setSelectedPurchase(updated);
+                                                                }}
+                                                                className="p-1 rounded text-red-600 hover:bg-red-100 transition"
+                                                                title="Remove Item"
+                                                            >
+                                                                <Trash className="w-4 h-4" />
+                                                            </button>
+                                                        </td>
+                                                    )}
+
                                                 </tr>
                                             ))}
+                                            {mode === "edit" && (
+                                                <tr className="border-t bg-gray-50">
+                                                    <td className="p-3" colSpan={6}>
+                                                        <select
+                                                            className="w-full border rounded p-2 text-sm"
+                                                            onChange={(e) => {
+                                                                if (!e.target.value) return;
+                                                                const pItem = purchase_items?.find((p: any) => p.id === Number(e.target.value));
+                                                                if (pItem) {
+                                                                    const newDetail = {
+                                                                        id: 'new-' + Date.now(),
+                                                                        purchase_item_id: pItem.id,
+                                                                        qty: 1,
+                                                                        price: pItem.price,
+                                                                        unit: pItem.unit,
+                                                                        purchase_item: pItem
+                                                                    };
+                                                                    setSelectedPurchase({
+                                                                        ...selectedPurchase,
+                                                                        details: [...(selectedPurchase.details || []), newDetail]
+                                                                    });
+                                                                }
+                                                                e.target.value = ""; // Reset
+                                                            }}
+                                                        >
+                                                            <option value="">+ {t('purchase_history.add_item') || 'Add Item'}</option>
+                                                            {purchase_items?.map((p: any) => (
+                                                                <option key={p.id} value={p.id}>{p.name} - {currency}{p.price}</option>
+                                                            ))}
+                                                        </select>
+                                                    </td>
+                                                </tr>
+                                            )}
                                         </tbody>
 
                                     </table>
-                                </div>
-
-                                {/* ================= SUMMARY ================= */}
-                                <div className="flex justify-end mt-6">
-
-                                    <div className="w-full md:w-80 space-y-2 text-sm">
-
-                                        <div className="flex justify-between">
-                                            <span>{t('purchase_history.transport_fee')}</span>
-                                            <span>{currency}{Number(selectedPurchase.transport_fee || 0).toLocaleString()}</span>
-                                        </div>
-
-                                        <div className="flex justify-between">
-                                            <span>{t('purchase_history.tax')}</span>
-                                            <span>{currency}{Number(selectedPurchase.tax_amount || 0).toLocaleString()}</span>
-                                        </div>
-
-                                        <div className="flex justify-between">
-                                            <span>{t('purchase_history.discount')}</span>
-                                            <span>-{currency}{Number(selectedPurchase.discount_amount || 0).toLocaleString()}</span>
-                                        </div>
-
-                                        <div className="flex justify-between font-bold text-lg border-t pt-2">
-                                            <span>{t('purchase_history.grand_total')}</span>
-                                            <span>{currency}{finalTotal().toLocaleString()}</span>
-                                        </div>
-
-                                    </div>
-
                                 </div>
 
                                 {/* ================= FOOTER ================= */}
@@ -606,10 +716,14 @@ export default function PurchaseHistory({ currency }: any) {
                                                     tax_amount: selectedPurchase.tax_amount,
                                                     discount_amount: selectedPurchase.discount_amount,
                                                     total_amount: finalTotal(),
+                                                    purchase_date: selectedPurchase.purchase_date,
                                                     details: selectedPurchase.details.map((d: any) => ({
-                                                        id: d.id,
+                                                        id: String(d.id).startsWith('new-') ? null : d.id,
+                                                        purchase_item_id: d.purchase_item_id,
                                                         qty: d.qty,
                                                         price: d.price,
+                                                        unit: d.unit,
+                                                        purchase_item: d.purchase_item,
                                                     })),
                                                 };
 

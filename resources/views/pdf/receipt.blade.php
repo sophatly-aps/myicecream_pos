@@ -23,8 +23,9 @@
 </style>
 
 <div class="text-center">
-    <h3 class="bold">{{ $company_name }}</h3>
-    <p>វិក្កយបត្រ: {{ $order->invoice_no }}</p>
+    <h3 class="bold" style="margin: 0 0 5px 0;">{{ $company_name }}</h3>
+    <p style="margin: 0;">វិក្កយបត្រ: {{ $order->invoice_no }}</p>
+    <p style="margin: 0;">អតិថិជន: {{ $order->customer ? $order->customer->name : 'Walk-in Customer' }}</p>
 </div>
 
 <table>
