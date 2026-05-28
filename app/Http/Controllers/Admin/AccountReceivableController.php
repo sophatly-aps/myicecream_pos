@@ -7,6 +7,7 @@ use App\Models\Order;
 use App\Models\Setting;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class AccountReceivableController extends Controller
@@ -16,7 +17,7 @@ class AccountReceivableController extends Controller
         $settings = Setting::pluck('value', 'key')->toArray();
 
         $query = Order::with(['customer', 'user', 'details.product'])
-            ->whereIn('payment_status', ['due', 'partial'])->orderBy('customer_id');
+            ->whereIn('payment_status', ['due', 'partial'])->orderBy('customer_id', 'asc');
 
         // 🔍 SEARCH
         if ($request->filled('search')) {
@@ -25,7 +26,7 @@ class AccountReceivableController extends Controller
             $query->where(function ($q) use ($search) {
                 $q->where('invoice_no', 'like', "%$search%")
                     ->orWhereHas('customer', function ($q2) use ($search) {
-                        $q2->where('name', 'like', "%$search%")->orderBy('customer_id');
+                        $q2->where('name', 'like', "%$search%");
                     });
             });
         }
@@ -76,11 +77,13 @@ class AccountReceivableController extends Controller
         }
 
         // 💰 TOTAL DUE (optimized)
-        $totalDue = (clone $query)
-            ->get()
-            ->sum(function ($ord) {
-                return (float) $ord->total_amount - (float) $ord->paid_amount;
-            });
+        // $totalDue = (clone $query)
+        //     ->get()
+        //     ->sum(function ($ord) {
+        //         return (float) $ord->total_amount - (float) $ord->paid_amount;
+        //     });
+
+        $totalDue = (clone $query)->sum(DB::raw('(CAST(total_amount AS DECIMAL(10,2)) - CAST(paid_amount AS DECIMAL(10,2)))'));
 
         $orders = $query->paginate(10)->withQueryString();
 
