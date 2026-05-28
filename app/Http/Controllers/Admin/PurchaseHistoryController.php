@@ -20,8 +20,11 @@ class PurchaseHistoryController extends Controller
 
         $currency = $settings['currency_symbol'] ?? '$';
 
+        $purchase_items = \App\Models\PurchaseItem::all();
+
         return Inertia::render('purchase/history',[
             'currency' => $currency,
+            'purchase_items' => $purchase_items,
         ]);
     }
 
@@ -29,7 +32,7 @@ class PurchaseHistoryController extends Controller
     {
         $filter = $request->filter;
 
-        $query = Purchase::query();
+        $query = Purchase::with(['details.purchase_item']);
 
         
         if ($request->filter === 'trash') {
@@ -138,22 +141,41 @@ class PurchaseHistoryController extends Controller
 
         // Update main purchase fields
         $purchase->update([
+            'purchase_date' => $request->purchase_date ?? $purchase->purchase_date,
             'transport_fee' => $request->transport_fee ?? 0,
             'tax_amount' => $request->tax_amount ?? 0,
             'discount_amount' => $request->discount_amount ?? 0,
             'total_amount' => $request->total_amount ?? 0,
         ]);
 
+        $existingIds = $purchase->details()->pluck('id')->toArray();
+        $updatedIds = [];
+
         // Update details
         foreach ($request->details as $item) {
-            $detail = $purchase->details->where('id', $item['id'])->first();
-
-            if ($detail) {
-                $detail->update([
+            if (isset($item['id']) && in_array($item['id'], $existingIds)) {
+                $detail = $purchase->details()->where('id', $item['id'])->first();
+                if ($detail) {
+                    $detail->update([
+                        'qty' => $item['qty'],
+                        'price' => $item['price'],
+                    ]);
+                    $updatedIds[] = $detail->id;
+                }
+            } else {
+                $newDetail = $purchase->details()->create([
+                    'purchase_item_id' => $item['purchase_item_id'] ?? ($item['purchase_item']['id'] ?? null),
                     'qty' => $item['qty'],
                     'price' => $item['price'],
+                    'unit' => $item['unit'] ?? ($item['purchase_item']['unit'] ?? ''),
                 ]);
+                $updatedIds[] = $newDetail->id;
             }
+        }
+
+        $deletedIds = array_diff($existingIds, $updatedIds);
+        if (!empty($deletedIds)) {
+            $purchase->details()->whereIn('id', $deletedIds)->delete();
         }
 
         return response()->json([
