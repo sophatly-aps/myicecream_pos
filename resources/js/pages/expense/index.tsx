@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next';
 
 import { buildColumns, Expense } from './columns';
 import { DataTable } from './data-table';
+import { Link } from '@inertiajs/react';
 
 import {
     Dialog,
@@ -39,10 +40,48 @@ import {
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
+// interface Props {
+//     expenses: Expense[];
+//     settings: Record<string, any>;
+//     filters?: Record<string, any>;
+// }
+
+// 1. Define what a single Expense looks like
+// interface Expense {
+//     id: number;
+//     user_name: string;
+//     expense_date: string;
+//     expense_name: string;
+//     description: string;
+//     unit: string;
+//     expense_amount: number;
+//     created_at: string;
+//     status: string;
+// }
+
+interface PaginationLink {
+    url: string | null;
+    label: string;
+    active: boolean;
+}
+
 interface Props {
-    expenses: Expense[];
-    settings: Record<string, any>;
-    filters?: Record<string, any>;
+    settings: any;
+    filters: {
+        from_date?: string;
+        to_date?: string;
+        preset?: string;
+    };
+    // CHANGE THIS: expenses is an object containing the data array and links
+    expenses: {
+        data: Expense[];
+        links: PaginationLink[];
+        from: number;
+        to: number;
+        total: number;
+        prev_page_url: string | null;
+        next_page_url: string | null;
+    };
 }
 
 const PRESETS = [
@@ -57,11 +96,13 @@ const PRESETS = [
 
 const EMPTY_FORM = {
     expense_name: '',
-    expense_amount: '',
+    expense_amount: 0,
     expense_date: '',
     description: '',
     status: '',
     unit: '',
+    expense_method: '',
+    due_amount: 0,
 };
 
 // ── Component ─────────────────────────────────────────────────────────────────
@@ -141,20 +182,22 @@ export default function Index({ expenses, settings, filters }: Props) {
         setForm({
             expense_name: expense.expense_name ?? '',
             expense_amount: expense.expense_amount
-                ? Number(expense.expense_amount).toLocaleString('en-US')
-                : '',
+                ? Number(expense.expense_amount)
+                : 0,
             expense_date: (expense as any).expense_date ?? '',
             description:
                 expense.description != null ? String(expense.description) : '',
             status: expense.status,
             unit: expense.unit,
+            expense_method: expense.expense_method,
+            due_amount: expense.due_amount,
         });
         setIsOpen(true);
     };
 
     // ── Submit ────────────────────────────────────────────────────────────────
 
-    const submit = (e: React.FormEvent) => {
+    const submit = (e: any) => {
         e.preventDefault();
         setProcessing(true);
         setErrors({});
@@ -169,6 +212,8 @@ export default function Index({ expenses, settings, filters }: Props) {
         fd.append('description', form.description);
         fd.append('status', form.status);
         fd.append('unit', form.unit);
+        fd.append('expense_method', form.expense_method);
+        fd.append('due_amount', form.due_amount);
 
         if (editingExpense) {
             fd.append('_method', 'PUT');
@@ -318,8 +363,72 @@ export default function Index({ expenses, settings, filters }: Props) {
                     </div>
 
                     <div className="py-4">
-                        <DataTable columns={columns} data={expenses} />
+                        <DataTable columns={columns} data={expenses.data} />
                     </div>
+
+                    {/* 2. Add this clean Pagination navigation bar right underneath */}
+                    {expenses.links && expenses.links.length > 3 && (
+                        <div className="mt-4 flex items-center justify-between rounded-lg border-t border-gray-200 bg-white px-4 py-3 shadow-sm sm:px-6">
+                            <div className="flex flex-1 justify-between sm:hidden">
+                                <Link
+                                    href={expenses.prev_page_url || '#'}
+                                    className={`relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 ${!expenses.prev_page_url ? 'pointer-events-none opacity-50' : ''}`}
+                                >
+                                    Previous
+                                </Link>
+                                <Link
+                                    href={expenses.next_page_url || '#'}
+                                    className={`relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 ${!expenses.next_page_url ? 'pointer-events-none opacity-50' : ''}`}
+                                >
+                                    Next
+                                </Link>
+                            </div>
+                            <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+                                <div>
+                                    <p className="text-sm text-gray-700">
+                                        Showing{' '}
+                                        <span className="font-medium">
+                                            {expenses.from || 0}
+                                        </span>{' '}
+                                        to{' '}
+                                        <span className="font-medium">
+                                            {expenses.to || 0}
+                                        </span>{' '}
+                                        of{' '}
+                                        <span className="font-medium">
+                                            {expenses.total}
+                                        </span>{' '}
+                                        results
+                                    </p>
+                                </div>
+                                <div>
+                                    <nav
+                                        className="isolate inline-flex -space-x-px rounded-md shadow-sm"
+                                        aria-label="Pagination"
+                                    >
+                                        {expenses.links.map((link, index) => (
+                                            <Link
+                                                key={index}
+                                                href={link.url || '#'}
+                                                dangerouslySetInnerHTML={{
+                                                    __html: link.label,
+                                                }}
+                                                className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold transition-colors focus:z-20 ${
+                                                    link.active
+                                                        ? 'z-10 bg-blue-600 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600'
+                                                        : 'text-gray-900 ring-1 ring-gray-300 ring-inset hover:bg-gray-50 focus:outline-offset-0'
+                                                } ${!link.url ? 'pointer-events-none text-gray-300' : ''} ${
+                                                    index === 0
+                                                        ? 'rounded-l-md'
+                                                        : ''
+                                                } ${index === expenses.links.length - 1 ? 'rounded-r-md' : ''}`}
+                                            />
+                                        ))}
+                                    </nav>
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -504,7 +613,45 @@ export default function Index({ expenses, settings, filters }: Props) {
                                 </div>
                             </div>
 
-                            {/* Product Status */}
+                            {/* Expense Method */}
+                            <div className="space-y-1">
+                                <Label>
+                                    {t('expense.expense_method_label')}{' '}
+                                    <span className="text-red-500">*</span>
+                                </Label>
+                                <Select
+                                    value={form.expense_method || ''}
+                                    onValueChange={(v) =>
+                                        setForm((f) => ({
+                                            ...f,
+                                            expense_method: v,
+                                        }))
+                                    }
+                                >
+                                    <SelectTrigger className="w-full">
+                                        <SelectValue
+                                            placeholder={t(
+                                                'expense.expense_method_placeholder',
+                                            )}
+                                        />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="paid">
+                                            {t('expense.expense_method.paid')}
+                                        </SelectItem>
+                                        <SelectItem value="due">
+                                            {t('expense.expense_method.due')}
+                                        </SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                {errors.expense_method && (
+                                    <p className="text-xs text-red-500">
+                                        {errors.expense_method}
+                                    </p>
+                                )}
+                            </div>
+
+                            {/* Expense Status */}
                             <div className="space-y-1">
                                 <Label>
                                     {t('expense.status_label')}{' '}

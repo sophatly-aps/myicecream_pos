@@ -3,7 +3,6 @@
 import { ColumnDef, Row } from '@tanstack/react-table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { PenIcon, TrashIcon } from 'lucide-react';
 import { t } from 'i18next';
 
 export type Expense = {
@@ -12,9 +11,11 @@ export type Expense = {
     expense_date: Date;
     expense_name: string;
     description: string;
-    expense_amount: string;
+    expense_amount: number;
     status: string;
     unit: string;
+    expense_method: string;
+    due_amount: number;
 };
 
 export type settings = {
@@ -87,6 +88,33 @@ export function buildColumns(
         {
             accessorKey: 'expense_amount',
             header: t('expense.total_amount'),
+            cell: ({ getValue }) =>
+                `${settings.currency_symbol}${Number(getValue()).toLocaleString()}`,
+        },
+        {
+            accessorKey: 'expense_method',
+            header: t('expense.expense_method_label'),
+            cell: ({ row }) => {
+                const method = row.getValue<string>('expense_method');
+                return (
+                    <Badge
+                        className={
+                            method === 'paid'
+                                ? 'border-green-200 bg-green-100 text-green-800 hover:bg-green-200'
+                                : 'border-red-200 bg-red-100 text-red-800 hover:bg-red-200'
+                        }
+                        variant="outline"
+                    >
+                        {method === 'paid'
+                            ? t('expense.expense_method.paid')
+                            : t('expense.expense_method.due')}
+                    </Badge>
+                );
+            },
+        },
+        {
+            accessorKey: 'due_amount',
+            header: t('expense.due_amount'),
             cell: ({ getValue }) =>
                 `${settings.currency_symbol}${Number(getValue()).toLocaleString()}`,
         },

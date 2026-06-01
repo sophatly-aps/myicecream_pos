@@ -526,7 +526,14 @@
             "to_date": "To Date"
         },
         "export": "Export",
-        "filter": "Filter"
+        "filter": "Filter",
+        "expense_method_label": "Expense method",
+        "expense_method": {
+            "paid": "Paid",
+            "due": "Due"
+        },
+        "expense_method_placeholder": "Select an expense method",
+        "due_amount": "Due Amount"
     },
     "employee": {
         "month": "mo",

@@ -54,16 +54,36 @@ class ExpenseController extends Controller
             }
         }
 
-        $expenses = $query->get()->map(function ($expense) {
+        // 1. Paginate the query and keep search filters in the pagination links
+        $paginatedExpenses = $query->paginate(10)->withQueryString();
+
+        // $expenses = $query->get()->map(function ($expense) {
+        //     return [
+        //         'id' => $expense->id,
+        //         'user_name' => $expense->user->name,
+        //         'expense_date' => $expense->expense_date,
+        //         'expense_name' => $expense->expense_name,
+        //         'description' => $expense->description,
+        //         'expense_amount' => $expense->expense_amount,
+        //         'created_at' => $expense->created_at->format('d-m-Y'),
+        //         'status' => $expense->status,
+        //     ];
+        // });
+
+        // 2. Use ->through() to transform the records without losing pagination metadata
+        $expenses = $paginatedExpenses->through(function ($expense) {
             return [
                 'id' => $expense->id,
-                'user_name' => $expense->user->name,
+                'user_name' => $expense->user->name ?? 'N/A', // Added null fallback protection
                 'expense_date' => $expense->expense_date,
                 'expense_name' => $expense->expense_name,
                 'description' => $expense->description,
                 'expense_amount' => $expense->expense_amount,
-                'created_at' => $expense->created_at->format('d-m-Y'),
+                'created_at' => $expense->created_at ? $expense->created_at->format('d-m-Y') : '',
                 'status' => $expense->status,
+                'unit' => $expense->unit,
+                'expense_method' => $expense->expense_method,
+                'due_amount' => $expense->due_amount,
             ];
         });
 
@@ -211,6 +231,8 @@ class ExpenseController extends Controller
             'description' => 'nullable',
             'status' => 'required',
             'unit' => 'nullable',
+            'expense_method' => 'required',
+            'due_amount' => 'required_if:expense_method,due',
         ], [
             'expense_name.required' => 'Expense amount is required',
             'expense_date.required' => 'Expense Date is required',
@@ -218,6 +240,9 @@ class ExpenseController extends Controller
             'status' => 'Expense Status is required',
         ]);
 
+        if ($validated['expense_method'] === 'due') {
+            $dueAmount = $validated['expense_amount'];
+        }
         $expense = Expense::create([
             'user_id' => auth()->id(),
             'expense_name' => $validated['expense_name'],
@@ -226,6 +251,8 @@ class ExpenseController extends Controller
             'description' => $validated['description'],
             'status' => $validated['status'],
             'unit' => $validated['unit'],
+            'expense_method' => $validated['expense_method'],
+            'due_amount' => $validated['expense_method'] === 'due' ? $dueAmount : 0,
         ]);
 
         return redirect()->route('expense.index')->with('success', 'Expense created successfully');
@@ -252,6 +279,8 @@ class ExpenseController extends Controller
      */
     public function update(Request $request, string $id)
     {
+        $expense = Expense::findOrFail($id);
+
         $validated = $request->validate([
             'expense_name' => 'required',
             'expense_date' => 'required',
@@ -259,12 +288,22 @@ class ExpenseController extends Controller
             'description' => 'nullable',
             'status' => 'required',
             'unit' => 'nullable',
+            'expense_method' => 'required',
+            'due_amount' => 'required_if:expense_method,due',
         ], [
             'expense_name.required' => 'Expense amount is required',
             'expense_date.required' => 'Expense Date is required',
             'expense_amount.required' => 'Expense Amount is required',
             'status' => 'Expense Status is required',
         ]);
+
+        if ($validated['expense_method'] === 'due') {
+            $dueAmount = $validated['expense_amount'];
+        }
+
+        if ($validated['expense_method'] === 'paid') {
+            $dueAmount = $expense->expense_amount - $validated['expense_amount'];
+        }
 
         $expense = Expense::findOrFail($id)->update([
             'user_id' => auth()->id(),
@@ -274,6 +313,8 @@ class ExpenseController extends Controller
             'description' => $validated['description'],
             'status' => $validated['status'],
             'unit' => $validated['unit'],
+            'expense_method' => $validated['expense_method'],
+            'due_amount' => $dueAmount,
         ]);
 
         return redirect()->route('expense.index')->with('success', 'Expense updated successfully');

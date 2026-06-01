@@ -516,7 +516,14 @@
             "to_date": "ដល់ថ្ងៃទី"
         },
         "export": "បោះពុម្ព",
-        "filter": "ស្វែងរក"
+        "filter": "ស្វែងរក",
+        "expense_method_label": "វិធីចំណាយ",
+        "expense_method": {
+            "paid": "បង់រួច",
+            "due": "ជំពាក់"
+        },
+        "expense_method_placeholder": "ជ្រើសរើសវិធីចំណាយ",
+        "due_amount": "ប្រាក់ជំពាក់"
     },
     "employee": {
         "employee_created": "បានបង្កើតបុគ្គលិក",
