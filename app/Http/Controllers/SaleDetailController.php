@@ -81,8 +81,8 @@ class SaleDetailController extends Controller
         $query = Order::select('orders.*') // Explicitly select order columns to avoid column overwriting
             ->join('customers', 'orders.customer_id', '=', 'customers.id')
             ->with(['customer', 'user', 'details.product'])
-            ->orderBy('customers.name', 'asc'); // ✨ Alphabetical ordering by customer name
-
+            ->orderBy('orders.created_at', 'desc')
+            ->orderBy('customers.name', 'asc');
         if ($request->filled('preset') && $request->preset === 'trash') {
             $query->onlyTrashed();
         }
