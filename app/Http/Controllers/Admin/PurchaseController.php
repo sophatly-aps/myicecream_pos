@@ -63,7 +63,7 @@ class PurchaseController extends Controller
          $request->validate([
             'cart' => 'required|array|min:1',
             'total_amount' => 'required|numeric',
-            'payment_method' => 'required|string',
+            'purchase_method' => 'required|string',
         ]);
         
 
@@ -79,6 +79,8 @@ class PurchaseController extends Controller
                 'discount_amount'=> $request->discount_amount ?? 0,
                 'total_amount'   => $request->total_amount,
                 'user_id'        => Auth::id(),
+                'purchase_status'=> $request->purchase_status ?? 'paid',
+                'purchase_method'=> $request->purchase_method ?? 'cash',
             ]);
 
             // 2. Create Order Details

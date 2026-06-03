@@ -203,7 +203,8 @@
         "transport_fee": "Transport Fee",
         "paid_amount": "Paid Amount",
         "remaining_amount": "Remaining Amount",
-        "date_search": "Date Preset"
+        "date_search": "Date Preset",
+        "customer_search_placeholder": "All Customers"
     },
     "depot": {
         "depot_label": "Depots",
@@ -439,7 +440,19 @@
         "clear_all": "Clear All",
         "save": "Save",
         "edit_purchase": "Edit Purchase",
-        "purchase_invoice": "purchase invoice"
+        "purchase_invoice": "purchase invoice",
+        "purchase_status_label": "Purchase status",
+        "purchase_status": {
+            "paid": "Paid",
+            "due": "Due",
+            "partial": "Partial"
+        },
+        "payment_method_label": "Payment method",
+        "payment_method_text": {
+            "cash": "Cash",
+            "aba": "ABA",
+            "wing": "Wing"
+        }
     },
     "purchase_history": {
         "all": "All",

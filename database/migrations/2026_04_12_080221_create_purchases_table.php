@@ -19,6 +19,8 @@ return new class extends Migration
             $table->double('discount_amount')->nullable();
             $table->date('purchase_date');
             $table->double('total_amount')->nullable();
+            $table->string('purchase_status')->nullable();
+            $table->string('purchase_method')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

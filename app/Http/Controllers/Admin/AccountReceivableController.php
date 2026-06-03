@@ -19,16 +19,9 @@ class AccountReceivableController extends Controller
         $query = Order::with(['customer', 'user', 'details.product'])
             ->whereIn('payment_status', ['due', 'partial'])->orderBy('customer_id', 'asc');
 
-        // 🔍 SEARCH
-        if ($request->filled('search')) {
-            $search = $request->search;
-
-            $query->where(function ($q) use ($search) {
-                $q->where('invoice_no', 'like', "%$search%")
-                    ->orWhereHas('customer', function ($q2) use ($search) {
-                        $q2->where('name', 'like', "%$search%");
-                    });
-            });
+        // 🔍 CUSTOMER FILTER
+        if ($request->filled('customer_id') && $request->customer_id !== 'all') {
+            $query->where('customer_id', $request->customer_id);
         }
 
         $tz = 'Asia/Phnom_Penh';
@@ -85,12 +78,15 @@ class AccountReceivableController extends Controller
 
         $totalDue = (clone $query)->sum(DB::raw('(CAST(total_amount AS DECIMAL(10,2)) - CAST(paid_amount AS DECIMAL(10,2)))'));
 
+        $customers = \App\Models\Customer::orderBy('name')->get();
+
         $orders = $query->paginate(10)->withQueryString();
 
         return Inertia::render('account_receivable/index', [
             'orders' => $orders,
+            'customers' => $customers,
             'totalDue' => $totalDue,
-            'filters' => $request->only(['search', 'preset', 'from_date', 'to_date']),
+            'filters' => $request->only(['customer_id', 'preset', 'from_date', 'to_date']),
             'settings' => $settings,
         ]);
     }

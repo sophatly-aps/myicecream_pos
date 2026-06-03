@@ -187,8 +187,8 @@ export default function Index({ purchase_items, suppliers, settings }: Props) {
             discount_amount: discountAmount,
             paid_amount: paidAmount,
             change_amount: changeAmount,
-            payment_method: paymentMethod,
-            payment_status: paymentStatus,
+            purchase_method: paymentMethod,
+            purchase_status: paymentStatus,
         };
 
         axios

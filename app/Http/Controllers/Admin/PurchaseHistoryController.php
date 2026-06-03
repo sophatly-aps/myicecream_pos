@@ -146,6 +146,8 @@ class PurchaseHistoryController extends Controller
             'tax_amount' => $request->tax_amount ?? 0,
             'discount_amount' => $request->discount_amount ?? 0,
             'total_amount' => $request->total_amount ?? 0,
+            'purchase_method' => $request->purchase_method ?? $purchase->purchase_method,
+            'purchase_status' => $request->purchase_status ?? $purchase->purchase_status,
         ]);
 
         $existingIds = $purchase->details()->pluck('id')->toArray();

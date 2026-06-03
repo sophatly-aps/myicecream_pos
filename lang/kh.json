@@ -202,7 +202,8 @@
         "total": "សរុប",
         "transport_fee": "ដឹកជញ្ជូន",
         "paid_amount": "ប្រាក់ដែលបង់",
-        "remaining_amount": "ប្រាក់ដែលនៅសល់"
+        "remaining_amount": "ប្រាក់ដែលនៅសល់",
+        "customer_search_placeholder": "អតិថិជនទាំងអស់"
     },
     "depot": {
         "depot_label": "ដេប៉ូការ៉េម",
@@ -430,7 +431,19 @@
         "no_purchase_item": "មិនទាន់មានទំនិញ",
         "save": "រក្សាទុក",
         "edit_purchase": "កែប្រែការទិញ",
-        "purchase_invoice": "វិក្កយបត្រទិញ"
+        "purchase_invoice": "វិក្កយបត្រទិញ",
+        "purchase_status_label": "ស្ថានភាពទូទាត់",
+        "purchase_status": {
+            "paid": "បង់រួច",
+            "due": "ជំពាក់",
+            "partial": "បង់ខ្លះ"
+        },
+        "payment_method_label": "វិធីទូទាត់",
+        "payment_method_text": {
+            "cash": "លុយសុទ្ធ",
+            "aba": "ABA",
+            "wing": "Wing"
+        }
     },
     "purchase_history": {
         "all": "ទាំងអស់",

@@ -28,6 +28,7 @@ import { EyeIcon, PencilIcon, Trash2 } from 'lucide-react';
 
 export default function AccountReceivable({
     orders,
+    customers,
     filters,
     settings,
     totalDue,
@@ -48,7 +49,7 @@ export default function AccountReceivable({
             maximumFractionDigits: 2,
         });
 
-    const [search, setSearch] = useState(filters?.search || '');
+    const [customerId, setCustomerId] = useState(filters?.customer_id || 'all');
     const [preset, setPreset] = useState(filters?.preset || 'all');
     const [fromDate, setFromDate] = useState(filters?.from_date || '');
     const [toDate, setToDate] = useState(filters?.to_date || '');
@@ -161,11 +162,12 @@ export default function AccountReceivable({
             .finally(() => setIsSaving(false));
     };
 
-    const applyFilters = () => {
+    const applyFilters = (cid?: string) => {
+        const selectedCid = cid !== undefined ? cid : customerId;
         router.get(
             '/account-receivable',
             {
-                search: search || undefined,
+                customer_id: selectedCid === 'all' ? undefined : selectedCid,
                 preset: preset || undefined,
                 from_date:
                     preset === 'custom' && fromDate ? fromDate : undefined,
@@ -384,16 +386,25 @@ export default function AccountReceivable({
                 <div className="flex flex-col items-end gap-4 rounded-xl border border-gray-200 bg-white p-4 md:flex-row">
                     <div className="flex w-full flex-col gap-1 md:w-48">
                         <label className="text-xs font-bold text-gray-500 uppercase">
-                            {t('ar.search')}
+                            {t('sales.customer')}
                         </label>
-                        <Input
-                            placeholder={t('ar.search_placeholder')}
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                            onKeyDown={(e) =>
-                                e.key === 'Enter' && applyFilters()
-                            }
-                        />
+                        <select
+                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+                            value={customerId}
+                            onChange={(e) => {
+                                setCustomerId(e.target.value);
+                                applyFilters(e.target.value);
+                            }}
+                        >
+                            <option value="all">
+                                {t('ar.customer_search_placeholder')}
+                            </option>
+                            {customers?.map((c: any) => (
+                                <option key={c.id} value={c.id}>
+                                    {c.name}
+                                </option>
+                            ))}
+                        </select>
                     </div>
 
                     <div className="flex w-full flex-col gap-1 md:w-48">
