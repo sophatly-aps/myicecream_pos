@@ -563,13 +563,12 @@ export default function AccountReceivable({
                                         dangerouslySetInnerHTML={{
                                             __html: link.label,
                                         }}
-                                        className={`rounded-md border px-4 py-2 text-sm transition-all ${
-                                            link.active
+                                        className={`rounded-md border px-4 py-2 text-sm transition-all ${link.active
                                                 ? 'border-indigo-600 bg-indigo-600 font-bold text-white'
                                                 : !link.url
-                                                  ? 'cursor-not-allowed border-gray-200 bg-gray-50 text-gray-400'
-                                                  : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50 hover:text-indigo-600'
-                                        }`}
+                                                    ? 'cursor-not-allowed border-gray-200 bg-gray-50 text-gray-400'
+                                                    : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50 hover:text-indigo-600'
+                                            }`}
                                     />
                                 ))}
                             </div>
@@ -626,7 +625,7 @@ export default function AccountReceivable({
                                     <p className="text-[13px] font-bold text-gray-800">
                                         {new Date(
                                             viewOrder.order_date,
-                                        ).toLocaleDateString()}
+                                        ).toLocaleDateString('en-GB')}
                                     </p>
                                 </div>
                             </div>
@@ -681,15 +680,15 @@ export default function AccountReceivable({
                                             {currency}
                                             {formatMoney(
                                                 Number(viewOrder.total_amount) -
-                                                    Number(
-                                                        viewOrder.tax_amount,
-                                                    ) -
-                                                    Number(
-                                                        viewOrder.transport_fee,
-                                                    ) +
-                                                    Number(
-                                                        viewOrder.discount_amount,
-                                                    ),
+                                                Number(
+                                                    viewOrder.tax_amount,
+                                                ) -
+                                                Number(
+                                                    viewOrder.transport_fee,
+                                                ) +
+                                                Number(
+                                                    viewOrder.discount_amount,
+                                                ),
                                             )}
                                         </span>
                                     </div>
@@ -748,8 +747,8 @@ export default function AccountReceivable({
                                     {viewOrder.payment_status === 'paid'
                                         ? t('sales.payment_status.paid')
                                         : viewOrder.payment_status === 'partial'
-                                          ? t('sales.payment_status.partial')
-                                          : t('sales.payment_status.due')}
+                                            ? t('sales.payment_status.partial')
+                                            : t('sales.payment_status.due')}
                                 </span>
                             </div>
                         </div>
@@ -963,7 +962,7 @@ export default function AccountReceivable({
                             onClick={handleAlertConfirm}
                             className={
                                 alertAction === 'force_delete' ||
-                                alertAction === 'trash'
+                                    alertAction === 'trash'
                                     ? 'bg-red-600 text-white hover:bg-red-700'
                                     : 'bg-green-600 text-white hover:bg-green-700'
                             }

@@ -635,7 +635,7 @@ export default function History({
                                     <p className="text-[13px] font-bold text-gray-800">
                                         {new Date(
                                             viewOrder.order_date,
-                                        ).toLocaleDateString()}
+                                        ).toLocaleDateString('en-GB')}
                                     </p>
                                 </div>
                             </div>
