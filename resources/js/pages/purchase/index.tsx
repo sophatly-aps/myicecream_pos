@@ -105,6 +105,31 @@ export default function Index({ purchase_items, suppliers, settings }: Props) {
         }
     }, [paidAmount, grandTotal]);
 
+    // const handleQtyChange = (id: number, value: string) => {
+    //     // 1. If the user clears the input completely, allow it to be an empty string temporarily
+    //     // so they can backspace and type a new number easily
+    //     if (value === '') {
+    //         setCart((prevCart) =>
+    //             prevCart.map((item) =>
+    //                 item.id === id ? { ...item, qty: '' as any } : item,
+    //             ),
+    //         );
+    //         return;
+    //     }
+
+    //     // 2. Convert what they type into a real integer
+    //     const newQty = parseInt(value, 10);
+
+    //     // 3. Update the state item if it's a valid positive number
+    //     if (!isNaN(newQty) && newQty >= 0) {
+    //         setCart((prevCart) =>
+    //             prevCart.map((item) =>
+    //                 item.id === id ? { ...item, qty: newQty } : item,
+    //             ),
+    //         );
+    //     }
+    // };
+
     const handleQtyChange = (id: number, value: string) => {
         // 1. If the user clears the input completely, allow it to be an empty string temporarily
         // so they can backspace and type a new number easily
@@ -117,10 +142,23 @@ export default function Index({ purchase_items, suppliers, settings }: Props) {
             return;
         }
 
-        // 2. Convert what they type into a real integer
-        const newQty = parseInt(value, 10);
+        // 2. Allow users to type decimals smoothly (e.g., "1." or "1.0") without the cursor jumping
+        if (
+            value.endsWith('.') ||
+            (value.includes('.') && value.endsWith('0'))
+        ) {
+            setCart((prevCart) =>
+                prevCart.map((item) =>
+                    item.id === id ? { ...item, qty: value as any } : item,
+                ),
+            );
+            return;
+        }
 
-        // 3. Update the state item if it's a valid positive number
+        // 3. Convert what they type into a real Float decimal number
+        const newQty = parseFloat(value);
+
+        // 4. Update the state item if it's a valid positive number
         if (!isNaN(newQty) && newQty >= 0) {
             setCart((prevCart) =>
                 prevCart.map((item) =>
@@ -408,6 +446,7 @@ export default function Index({ purchase_items, suppliers, settings }: Props) {
                                         {/* Changed from span to an input type="number" */}
                                         <input
                                             type="number"
+                                            step="any"
                                             value={
                                                 item.qty === 0 ? '' : item.qty
                                             } // Prevents zero-glitches when typing

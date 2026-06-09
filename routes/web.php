@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AbsenceController;
 use App\Http\Controllers\Admin\AccountReceivableController;
 use App\Http\Controllers\Admin\AdvanceSalaryController;
 use App\Http\Controllers\Admin\CategoryController;
@@ -126,6 +127,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('roles', RoleController::class);
         Route::resource('permissions', PermissionController::class);
     });
+
+    Route::get('/absence', [AbsenceController::class, 'index'])->name('absence.index');
 
     Route::get('settings-info', [SettingController::class, 'index'])->name('settings.index');
     Route::post('settings-info', [SettingController::class, 'store'])->name('settings.store');

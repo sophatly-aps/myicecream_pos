@@ -28,7 +28,8 @@
         "backups": "Database Backup",
         "account_receivable": "Account Receivable",
         "advance_salary": "Advance Salary",
-        "payslip": "Payslip"
+        "payslip": "Payslip",
+        "employee_absence": "Employee Absence"
     },
     "dashboard": {
         "title": "Dashboard",
@@ -799,5 +800,12 @@
         },
         "salary_breakdown": "Salary Breakdown",
         "employee_signature": "Employer Signature"
+    },
+    "absence": {
+        "absence_title": "Employee Absence",
+        "no": "#",
+        "absence_date": "Absence Date",
+        "create_new": "Create New",
+        "deduct_amount": "Deduct Amount"
     }
 }

@@ -29,7 +29,8 @@
         "backups": "ឯកសារបម្រុងទុក (Backup)",
         "account_receivable": "បំណុលដេប៉ូការ៉េម",
         "advance_salary": "បុគ្គលិកខ្ចីប្រាក់ខែ",
-        "payslip": "ប្រាក់ខែបុគ្គលិក"
+        "payslip": "ប្រាក់ខែបុគ្គលិក",
+        "employee_absence": "កាត់ប្រាក់អវត្តមាន"
     },
     "dashboard": {
         "title": "ផ្ទាំងគ្រប់គ្រង",
@@ -795,5 +796,12 @@
         },
         "salary_breakdown": "ប្រាក់បៀវត្សរ៍",
         "employee_signature": "ហត្ថលេខាបុគ្គលិក"
+    },
+    "absence": {
+        "absence_title": "កាត់ប្រាក់បុគ្គលិកអវត្តមាន",
+        "no": "ល.រ",
+        "absence_date": "ថ្ងៃខែឆ្នាំឈប់",
+        "create_new": "បង្កើតថ្មី",
+        "deduct_amount": "ទឹកប្រាក់កាត់"
     }
 }
