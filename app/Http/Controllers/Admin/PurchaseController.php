@@ -71,6 +71,11 @@ class PurchaseController extends Controller
             // Use Carbon to get the current date in Cambodia timezone
             $currentDate = Carbon::now('Asia/Phnom_Penh')->format('Y-m-d');
 
+            $due_amount = 0;
+            if (in_array($request->purchase_status, ['due', 'partial'])) {
+                $due_amount = max(0, $request->total_amount - ($request->paid_amount ?? 0));
+            }
+
             $purchase = Purchase::create([
                 'purchase_no'     => 'PO-' . date('ymd') . '-' . mt_rand(1000, 9999),
                 'purchase_date'     => $currentDate, // <--- RECORDING THE DATE HERE
@@ -78,6 +83,8 @@ class PurchaseController extends Controller
                 'transport_fee'  => $request->transport_fee ?? 0,
                 'discount_amount'=> $request->discount_amount ?? 0,
                 'total_amount'   => $request->total_amount,
+                'paid_amount'    => $request->paid_amount ?? 0,
+                'due_amount'     => $due_amount,
                 'user_id'        => Auth::id(),
                 'purchase_status'=> $request->purchase_status ?? 'paid',
                 'purchase_method'=> $request->purchase_method ?? 'cash',

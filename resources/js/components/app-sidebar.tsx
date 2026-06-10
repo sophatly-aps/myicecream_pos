@@ -122,6 +122,12 @@ export function AppSidebar() {
             icon: FolderClock,
             permission: 'purchases.view',
         },
+        {
+            title: t('sidebar.account_payable') || 'Account Payable',
+            icon: PackageSearch,
+            href: '/account-payable',
+            permission: 'purchases.view',
+        },
 
         {
             title: t('sidebar.expense'),

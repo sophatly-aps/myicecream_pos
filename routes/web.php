@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AbsenceController;
+use App\Http\Controllers\Admin\AccountPayableController;
 use App\Http\Controllers\Admin\AccountReceivableController;
 use App\Http\Controllers\Admin\AdvanceSalaryController;
 use App\Http\Controllers\Admin\CategoryController;
@@ -91,6 +92,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('income-statement', [IncomeStatementController::class, 'index'])->name('income.statement.index');
     Route::get('account-receivable', [AccountReceivableController::class, 'index'])->name('account.receivable.index');
+    Route::get('account-payable', [AccountPayableController::class, 'index'])->name('account.payable.index');
+    Route::put('/account-payable/{id}', [AccountPayableController::class, 'update'])->name('account.payable.update');
 
     Route::delete('/users/{id}', [UserController::class, 'destroy'])->name('users.delete');
     Route::put('/users/{id}/restore', [UserController::class, 'restore'])->name('users.restore');

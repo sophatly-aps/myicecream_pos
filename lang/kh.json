@@ -30,7 +30,8 @@
         "account_receivable": "បំណុលដេប៉ូការ៉េម",
         "advance_salary": "បុគ្គលិកខ្ចីប្រាក់ខែ",
         "payslip": "ប្រាក់ខែបុគ្គលិក",
-        "employee_absence": "កាត់ប្រាក់អវត្តមាន"
+        "employee_absence": "កាត់ប្រាក់អវត្តមាន",
+        "account_payable": "បំណុលបានជំពាក់"
     },
     "dashboard": {
         "title": "ផ្ទាំងគ្រប់គ្រង",
@@ -803,5 +804,9 @@
         "absence_date": "ថ្ងៃខែឆ្នាំឈប់",
         "create_new": "បង្កើតថ្មី",
         "deduct_amount": "ទឹកប្រាក់កាត់"
+    },
+    "account_payable": {
+        "paid_date": "ថ្ងៃខែឆ្នាំបង់",
+        "save_changes": "រក្សាទុក"
     }
 }

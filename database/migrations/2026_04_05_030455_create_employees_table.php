@@ -17,6 +17,10 @@ return new class extends Migration
             $table->string('phone')->nullable();
             $table->text('address')->nullable();
             $table->decimal('salary', 12, 2)->default(0);
+            $table->string('status')->default('active');
+            $table->date('hire_date')->nullable();
+            $table->string('position')->nullable();
+            $table->decimal('yearly_bonus', 12, 2)->default(0);
             $table->string('image')->nullable();
             $table->timestamps();
         });

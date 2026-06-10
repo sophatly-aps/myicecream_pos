@@ -16,7 +16,7 @@ class AbsenceController extends Controller
             ->orderBy('absent_date', 'desc')
             ->paginate(10);
 
-        $employees = Employee::where('status', 'active')->get(['id', 'name', 'base_salary']);
+        $employees = Employee::where('status', 'active')->get(['id', 'name', 'salary']);
 
         return Inertia::render('employees/absence/index', [
             'absences' => $absences,

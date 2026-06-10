@@ -19,6 +19,10 @@ return new class extends Migration
             $table->double('discount_amount')->nullable();
             $table->date('purchase_date');
             $table->double('total_amount')->nullable();
+            $table->integer('user_id')->nullable();
+            $table->double('paid_amount')->nullable();
+            $table->double('due_amount')->nullable();
+            $table->date('paid_date')->nullable();
             $table->string('purchase_status')->nullable();
             $table->string('purchase_method')->nullable();
             $table->softDeletes();

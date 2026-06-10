@@ -95,15 +95,16 @@ export default function Index({ purchase_items, suppliers, settings }: Props) {
     // 4. Change Amount
     const changeAmount = paidAmount > 0 ? paidAmount - grandTotal : 0;
 
+    // Remove the useEffect that overrides paymentStatus based on paidAmount 
+    // because it forces 'paid' status if paidAmount >= grandTotal, which conflicts with manual status selection.
+    // Instead we will handle paidAmount dynamically based on paymentStatus.
     useEffect(() => {
-        if (paidAmount >= grandTotal && grandTotal > 0) {
-            setPaymentStatus('paid');
-        } else if (paidAmount > 0 && paidAmount < grandTotal) {
-            setPaymentStatus('partial');
-        } else {
-            setPaymentStatus('due');
+        if (paymentStatus === 'paid') {
+            setPaidAmount(grandTotal);
+        } else if (paymentStatus === 'due') {
+            setPaidAmount(0);
         }
-    }, [paidAmount, grandTotal]);
+    }, [paymentStatus, grandTotal]);
 
     // const handleQtyChange = (id: number, value: string) => {
     //     // 1. If the user clears the input completely, allow it to be an empty string temporarily
@@ -216,6 +217,9 @@ export default function Index({ purchase_items, suppliers, settings }: Props) {
 
         setProcessing(true);
 
+        const dueAmount = paymentStatus === 'due' ? grandTotal : (paymentStatus === 'partial' ? Math.max(0, grandTotal - paidAmount) : 0);
+        const finalPaidAmount = paymentStatus === 'due' ? 0 : (paymentStatus === 'paid' ? grandTotal : paidAmount);
+
         const payload = {
             cart: cart,
             sub_total: subTotal,
@@ -223,7 +227,8 @@ export default function Index({ purchase_items, suppliers, settings }: Props) {
             tax_amount: taxAmount,
             transport_fee: transportFee,
             discount_amount: discountAmount,
-            paid_amount: paidAmount,
+            paid_amount: finalPaidAmount,
+            due_amount: dueAmount,
             change_amount: changeAmount,
             purchase_method: paymentMethod,
             purchase_status: paymentStatus,
@@ -625,6 +630,20 @@ export default function Index({ purchase_items, suppliers, settings }: Props) {
                                 ))}
                             </div>
                         </div>
+
+                        {paymentStatus === 'partial' && (
+                            <div className="space-y-2 px-2 pt-2">
+                                <label className="text-[10px] font-bold text-gray-400 uppercase">
+                                    {t('purchase.paid_amount') || 'Paid Amount'}
+                                </label>
+                                <Input
+                                    type="number"
+                                    value={paidAmount || ''}
+                                    onChange={(e) => setPaidAmount(Number(e.target.value))}
+                                    className="h-10 text-lg font-bold text-green-700"
+                                />
+                            </div>
+                        )}
 
                         {/* Final Grand Total */}
                         <div className="flex justify-between border-t pt-2 text-xl font-bold text-indigo-800">

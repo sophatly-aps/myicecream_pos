@@ -29,7 +29,8 @@
         "account_receivable": "Account Receivable",
         "advance_salary": "Advance Salary",
         "payslip": "Payslip",
-        "employee_absence": "Employee Absence"
+        "employee_absence": "Employee Absence",
+        "account_payable": "Account Payable"
     },
     "dashboard": {
         "title": "Dashboard",
@@ -807,5 +808,9 @@
         "absence_date": "Absence Date",
         "create_new": "Create New",
         "deduct_amount": "Deduct Amount"
+    },
+    "account_payable": {
+        "paid_date": "Paid Date",
+        "save_changes": "Save changes"
     }
 }
