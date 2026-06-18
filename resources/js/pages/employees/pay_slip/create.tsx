@@ -11,17 +11,21 @@ interface Props {
     month: string;
     base_salary: number;
     total_advance: number;
+    absent_days: number;
+    absent_deduction: number;
     net_salary: number;
     currency: string;
 }
 
-export default function Create({ employee, month, base_salary, total_advance, currency }: Props) {
+export default function Create({ employee, month, base_salary, total_advance, absent_days, absent_deduction, currency }: Props) {
     const { t } = useTranslation();
     const baseSalary = Number(base_salary);
     const advanceDeduction = Number(total_advance);
+    const absentDays = Number(absent_days);
+    const absentDeduction = Number(absent_deduction);
     const [otherDeduction, setOtherDeduction] = React.useState(0);
 
-    const netSalary = baseSalary - advanceDeduction - otherDeduction;
+    const netSalary = baseSalary - advanceDeduction - absentDeduction - otherDeduction;
 
     return (
         <div className="max-w-6xl mx-auto p-6">
@@ -60,6 +64,14 @@ export default function Create({ employee, month, base_salary, total_advance, cu
                     </div>
                     <div>
                         <label className="block text-sm text-gray-500 mb-2">
+                            Absent Deduction ({absentDays} days)
+                        </label>
+                        <p className="text-lg font-bold text-red-500">
+                            {currency}{absentDeduction.toLocaleString('en-US')}
+                        </p>
+                    </div>
+                    <div>
+                        <label className="block text-sm text-gray-500 mb-2">
                             {t('payslip.other_deduction')}
                         </label>
                         <input
@@ -90,6 +102,8 @@ export default function Create({ employee, month, base_salary, total_advance, cu
                             month,
                             base_salary: baseSalary,
                             advance_deduction: advanceDeduction,
+                            absent_days: absentDays,
+                            absent_deduction: absentDeduction,
                             other_deduction: otherDeduction,
                             net_salary: netSalary,
                         })

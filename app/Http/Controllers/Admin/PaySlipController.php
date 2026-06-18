@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\AdvanceSalary;
 use App\Models\Employee;
+use App\Models\EmployeeAbsence;
 use App\Models\Payslip;
 use App\Models\Setting;
 use Illuminate\Http\Request;
@@ -73,6 +74,7 @@ class PaySlipController extends Controller
                     'Month',
                     'Base Salary ('.$currency.')',
                     'Advance Deductions ('.$currency.')',
+                    'Absent Deduction ('.$currency.')',
                     'Other Deductions ('.$currency.')',
                     'Net Salary ('.$currency.')',
                     'Status',
@@ -85,6 +87,7 @@ class PaySlipController extends Controller
                         $payslip->month,
                         $payslip->base_salary,
                         $payslip->total_advance,
+                        $payslip->absent_deduction,
                         $payslip->other_deductions,
                         $payslip->net_salary,
                         $payslip->status,
@@ -121,12 +124,22 @@ class PaySlipController extends Controller
             ->where('request_date', 'like', $month.'%')
             ->sum('amount');
 
+        // Fetch Employee Absences
+        $absence = EmployeeAbsence::where('employee_id', $employee->id)
+            ->where('month', $month)
+            ->first();
+
+        $absent_days = $absence ? $absence->absent_days : 0;
+        $absent_deduction = ($employee->salary / 30) * $absent_days;
+
         return inertia('employees/pay_slip/create', [
             'employee' => $employee,
             'month' => $month,
             'total_advance' => $totalAdvance,
+            'absent_days' => $absent_days,
+            'absent_deduction' => round($absent_deduction, 2),
             'base_salary' => $employee->salary,
-            'net_salary' => $employee->salary - $totalAdvance,
+            'net_salary' => $employee->salary - $totalAdvance - $absent_deduction,
             'currency' => $currency,
         ]);
     }
@@ -141,6 +154,8 @@ class PaySlipController extends Controller
             'month' => 'required|string',
             'base_salary' => 'required|numeric',
             'advance_deduction' => 'required|numeric',
+            'absent_days' => 'required|integer|min:0',
+            'absent_deduction' => 'required|numeric',
             'other_deduction' => 'required|numeric',
             'net_salary' => 'required|numeric',
         ]);
@@ -159,6 +174,8 @@ class PaySlipController extends Controller
             'month' => $request->month,
             'base_salary' => $request->base_salary,
             'total_advance' => $request->advance_deduction,
+            'absent_days' => $request->absent_days,
+            'absent_deduction' => $request->absent_deduction,
             'other_deductions' => $request->other_deduction,
             'net_salary' => $request->net_salary,
             'status' => 'paid',
@@ -197,6 +214,8 @@ class PaySlipController extends Controller
         $request->validate([
             'base_salary' => 'required|numeric',
             'advance_deduction' => 'required|numeric',
+            'absent_days' => 'required|integer|min:0',
+            'absent_deduction' => 'required|numeric',
             'other_deduction' => 'required|numeric',
             'net_salary' => 'required|numeric',
             'status' => 'required|string',
@@ -205,6 +224,8 @@ class PaySlipController extends Controller
         $payslip->update([
             'base_salary' => $request->base_salary,
             'total_advance' => $request->advance_deduction,
+            'absent_days' => $request->absent_days,
+            'absent_deduction' => $request->absent_deduction,
             'other_deductions' => $request->other_deduction,
             'net_salary' => $request->net_salary,
             'status' => $request->status,

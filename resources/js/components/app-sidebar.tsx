@@ -149,7 +149,7 @@ export function AppSidebar() {
         },
         {
             title: t('sidebar.employee_absence'),
-            href: '/absence',
+            href: '/absences',
             icon: DollarSignIcon,
             permission: 'absences.view',
         },

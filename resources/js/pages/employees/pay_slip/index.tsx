@@ -318,6 +318,10 @@ export default function Index({ payslips, employees, currency, company_name, set
                                         <td className="p-3 border-r border-slate-300">{t('payslip.advance_deduction')}</td>
                                         <td className="p-3 text-right font-mono">- {currency}{Number(viewingPaySlip?.total_advance || 0).toLocaleString('en-US')}</td>
                                     </tr>
+                                    <tr className="border-b border-slate-300 bg-red-50 text-red-700">
+                                        <td className="p-3 border-r border-slate-300">Absent Deduction ({viewingPaySlip?.absent_days || 0} days)</td>
+                                        <td className="p-3 text-right font-mono">- {currency}{Number(viewingPaySlip?.absent_deduction || 0).toLocaleString('en-US')}</td>
+                                    </tr>
                                     <tr className="border-b border-slate-900 bg-red-50 text-red-700">
                                         <td className="p-3 border-r border-slate-900">{t('payslip.other_deduction')}</td>
                                         <td className="p-3 text-right font-mono">- {currency}{Number(viewingPaySlip?.other_deductions || 0).toLocaleString('en-US')}</td>

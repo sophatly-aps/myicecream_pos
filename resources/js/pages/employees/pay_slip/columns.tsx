@@ -14,6 +14,8 @@ export type PaySlip = {
     month: string;
     base_salary: number;
     total_advance: number;
+    absent_days: number;
+    absent_deduction: number;
     other_deductions: number;
     net_salary: number;
     status: string;
@@ -54,8 +56,9 @@ export const buildColumns = (
             header: t("payslip.total_deductions"),
             cell: ({ row }) => {
                 const advance = Number(row.original.total_advance || 0);
+                const absent = Number(row.original.absent_deduction || 0);
                 const other = Number(row.original.other_deductions || 0);
-                const total = advance + other;
+                const total = advance + absent + other;
                 return <span className="text-red-500">{currency}{total.toLocaleString('en-US')}</span>;
             },
         },

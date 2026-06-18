@@ -1,12 +1,12 @@
 <?php
 
-use App\Http\Controllers\Admin\AbsenceController;
 use App\Http\Controllers\Admin\AccountPayableController;
 use App\Http\Controllers\Admin\AccountReceivableController;
 use App\Http\Controllers\Admin\AdvanceSalaryController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\EmployeeAbsenceController;
 use App\Http\Controllers\Admin\EmployeeController;
 use App\Http\Controllers\Admin\ExpenseController;
 use App\Http\Controllers\Admin\IncomeStatementController;
@@ -58,6 +58,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         'expense' => ExpenseController::class,
         'advance-salary' => AdvanceSalaryController::class,
         'payslips' => PaySlipController::class,
+        'absences' => EmployeeAbsenceController::class,
     ]);
 
     // Sales & Receipts
@@ -131,7 +132,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('permissions', PermissionController::class);
     });
 
-    Route::get('/absence', [AbsenceController::class, 'index'])->name('absence.index');
 
     Route::get('settings-info', [SettingController::class, 'index'])->name('settings.index');
     Route::post('settings-info', [SettingController::class, 'store'])->name('settings.store');
