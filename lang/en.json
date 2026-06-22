@@ -804,10 +804,23 @@
     },
     "absence": {
         "absence_title": "Employee Absence",
+        "add_new": "Add New",
         "no": "#",
-        "absence_date": "Absence Date",
-        "create_new": "Create New",
-        "deduct_amount": "Deduct Amount"
+        "reason": "Reason",
+        "create_new": "Create New Record",
+        "edit_absence": "Edit Absencen Record",
+        "month": "Month",
+        "employee_name": "Employee Name",
+        "absence_day": "Absence Day",
+        "action": "Action",
+        "select_employee": "Select Employee",
+        "search_placeholder": "Search Employees...",
+        "update": "Update",
+        "create": "Save",
+        "cancel": "Cancel",
+        "delete_title": "Delete Absence Record",
+        "delete_description": "Are you sure you want to delete this absence record for",
+        "delete_button": "Delete"
     },
     "account_payable": {
         "paid_date": "Paid Date",

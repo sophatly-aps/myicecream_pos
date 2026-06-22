@@ -800,10 +800,23 @@
     },
     "absence": {
         "absence_title": "កាត់ប្រាក់បុគ្គលិកអវត្តមាន",
+        "add_new": "បញ្ចូលកាត់ប្រាក់អវត្តមាន",
         "no": "ល.រ",
-        "absence_date": "ថ្ងៃខែឆ្នាំឈប់",
+        "month": "ខែឆ្នាំឈប់",
         "create_new": "បង្កើតថ្មី",
-        "deduct_amount": "ទឹកប្រាក់កាត់"
+        "edit_absence": "កែប្រែ",
+        "reason": "មូលហេតុ",
+        "employee_name": "ឈ្មោះបុគ្គលិក",
+        "absence_day": "ចំនួនថ្ងៃ",
+        "action": "ចាត់ចែង",
+        "search_placeholder": "ស្វែងរកបុគ្គលិកតាមឈ្មោះ...",
+        "select_employee": "ជ្រើសរើសបុគ្គលិក",
+        "update": "កែប្រែ",
+        "create": "រក្សាទុក",
+        "cancel": "ចាកចេញ",
+        "delete_title": "លប់កាត់ប្រាក់អវត្តមាន",
+        "delete_description": "តើអ្នកពិតជាចង់លប់ប្រាក់កាត់អវត្តមានរបស់ឈ្មោះ ",
+        "delete_button": "យល់ព្រមលប់"
     },
     "account_payable": {
         "paid_date": "ថ្ងៃខែឆ្នាំបង់",
