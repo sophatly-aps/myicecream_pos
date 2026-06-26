@@ -3,12 +3,7 @@
 import { ColumnDef, Row } from '@tanstack/react-table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import {
-    PenIcon,
-    SlashSquareIcon,
-    SquareSlashIcon,
-    TrashIcon,
-} from 'lucide-react';
+import { PenIcon, TrashIcon } from 'lucide-react';
 import { t } from 'i18next';
 import { router } from '@inertiajs/react';
 

@@ -3,10 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\AdvanceSalary;
+use App\Models\Employee;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use App\Models\Employee;
-use App\Models\AdvanceSalary;
 
 class AdvanceSalaryController extends Controller
 {
@@ -20,26 +21,26 @@ class AdvanceSalaryController extends Controller
 
         if ($request->filled('search')) {
             $query->whereHas('employee', function ($q) use ($request) {
-                $q->where('name', 'like', '%' . $request->search . '%');
+                $q->where('name', 'like', '%'.$request->search.'%');
             });
         }
 
         $advanceSalaries = $query->latest()->paginate(10)->through(function ($item) {
             return [
-                'id'            => $item->id,
-                'employee_id'   => $item->employee_id,
+                'id' => $item->id,
+                'employee_id' => $item->employee_id,
                 'employee_name' => $item->employee->name ?? 'N/A',
-                'request_date'  => $item->request_date,
-                'amount'        => $item->amount,
-                'reason'        => $item->reason,
-                'status'        => $item->status,
+                'request_date' => $item->request_date ? Carbon::parse($item->request_date)->format('d-m-Y') : null,
+                'amount' => $item->amount,
+                'reason' => $item->reason,
+                'status' => $item->status,
             ];
         });
 
         return Inertia::render('employees/advance_salary/index', [
             'advance_salaries' => $advanceSalaries,
-            'filters'          => $request->only('search'),
-            "employees" => Employee::select('id','name')->get(),
+            'filters' => $request->only('search'),
+            'employees' => Employee::select('id', 'name')->get(),
         ]);
     }
 
