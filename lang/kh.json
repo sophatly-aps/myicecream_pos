@@ -31,7 +31,8 @@
         "advance_salary": "បុគ្គលិកខ្ចីប្រាក់ខែ",
         "payslip": "ប្រាក់ខែបុគ្គលិក",
         "employee_absence": "កាត់ប្រាក់អវត្តមាន",
-        "account_payable": "បំណុលបានជំពាក់"
+        "account_payable": "បំណុលបានជំពាក់",
+        "sale_by_customer": "ការលក់តាមអតិថិជន"
     },
     "dashboard": {
         "title": "ផ្ទាំងគ្រប់គ្រង",
@@ -60,6 +61,16 @@
         "cash": "សាច់ប្រាក់",
         "Khmer": "ខ្មែរ",
         "English": "English"
+    },
+    "sale_by_customer": {
+        "title": "ការលក់តាមអតិថិជន",
+        "description": "ការលក់សរុបតាមអតិថិជន",
+        "customer": "អតិថិជន",
+        "total_orders": "ចំនួនការលក់",
+        "total_amount": "ទឹកប្រាក់សរុប",
+        "paid_amount": "បានបង់",
+        "due_amount": "ជំពាក់",
+        "all_customers": "អតិថិជនទាំងអស់"
     },
     "pos": {
         "title": "លក់ទំនិញ",
@@ -208,6 +219,8 @@
         "customer_search_placeholder": "អតិថិជនទាំងអស់"
     },
     "depot": {
+        "depot_parent_label": "ជ្រើសរើសដេប៉ូមេ",
+        "depot_parent_select": "ជ្រើសរើសដេប៉ូមេ",
         "depot_label": "ដេប៉ូការ៉េម",
         "all_depot": "ដេប៉ូការ៉េមទាំងអស់",
         "search_placeholder": "ស្វែងរកដេប៉ូការ៉េម...",

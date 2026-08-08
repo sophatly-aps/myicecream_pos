@@ -3,12 +3,15 @@
 import { ColumnDef, Row } from "@tanstack/react-table"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { PenIcon, TrashIcon } from 'lucide-react';
+import { PenIcon, TrashIcon, EyeIcon, CornerDownRightIcon, FileSpreadsheetIcon } from 'lucide-react';
 import { t } from "i18next";
 
 
 export interface Customer {
     id: number;
+    parent_id?: number | null;
+    parent?: { id: number, name: string } | null;
+    sub_customers?: Customer[];
     name: string;
     phone: string;
     address?: string;
@@ -27,17 +30,25 @@ export interface PaginatedCustomers {
 
 type ActionsProps = {
     row: Row<Customer>
+    onView: (customer: Customer) => void
     onEdit: (customer: Customer) => void
     onDelete: (customer: Customer) => void
+    onStatement: (customer: Customer) => void
 }
 
 // Separate component so hooks can be used if needed in future
-function Actions({ row, onEdit, onDelete }: ActionsProps) {
+function Actions({ row, onView, onEdit, onDelete, onStatement }: ActionsProps) {
 
     const customer = row.original
     return (
         <div className="flex gap-2">
-            <Button variant="secondary" size="sm" onClick={() => onEdit(customer)}><PenIcon /></Button>
+            {!customer.parent_id && (
+                <Button variant="outline" size="sm" onClick={() => onStatement(customer)} title="Report Statement">
+                    <FileSpreadsheetIcon className="h-4 w-4 text-green-600" />
+                </Button>
+            )}
+            <Button variant="outline" size="sm" onClick={() => onView(customer)}><EyeIcon className="h-4 w-4" /></Button>
+            <Button variant="secondary" size="sm" onClick={() => onEdit(customer)}><PenIcon className="h-4 w-4" /></Button>
             <Button variant="destructive" size="sm" disabled={customer.orders_count > 0} title={
                 customer.orders_count > 0
                     ? "Cannot delete"
@@ -45,14 +56,16 @@ function Actions({ row, onEdit, onDelete }: ActionsProps) {
             } onClick={() => {
                 if (customer.orders_count > 0) return;
                 onDelete(customer)
-            }}><TrashIcon /></Button>
+            }}><TrashIcon className="h-4 w-4" /></Button>
         </div>
     )
 }
 
 export function buildColumns(
+    onView: (customer: Customer) => void,
     onEdit: (customer: Customer) => void,
-    onDelete: (customer: Customer) => void
+    onDelete: (customer: Customer) => void,
+    onStatement: (customer: Customer) => void
 ): ColumnDef<Customer>[] {
     return [
         {
@@ -65,6 +78,20 @@ export function buildColumns(
         {
             accessorKey: "name",
             header: t('depot.depot_name'),
+            cell: ({ row }) => {
+                const isSub = !!row.original.parent_id;
+                return (
+                    <div className="flex items-center gap-2">
+                        {isSub && <CornerDownRightIcon className="h-4 w-4 text-gray-400" />}
+                        <span>{row.original.name}</span>
+                        {isSub && (
+                            <Badge variant="secondary" className="text-[10px] h-5 px-1 ml-1 bg-gray-100 text-gray-600">
+                                Sub
+                            </Badge>
+                        )}
+                    </div>
+                )
+            }
         },
         {
             accessorKey: "phone",
@@ -73,6 +100,10 @@ export function buildColumns(
         {
             accessorKey: "address",
             header: t('depot.address'),
+        },
+        {
+            accessorKey: "parent.name",
+            header: "ដេប៉ូមេ",
         },
         {
             accessorKey: "other_info",
@@ -100,7 +131,7 @@ export function buildColumns(
         {
             id: "actions",
             header: t('depot.action'),
-            cell: ({ row }) => <Actions row={row} onEdit={onEdit} onDelete={onDelete} />,
+            cell: ({ row }) => <Actions row={row} onView={onView} onEdit={onEdit} onDelete={onDelete} onStatement={onStatement} />,
         },
     ]
 }

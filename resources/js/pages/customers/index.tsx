@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { toast } from 'sonner';
 import { useState, useRef, useEffect } from 'react';
 import { route } from 'ziggy-js';
+import { PrinterIcon, FileSpreadsheetIcon } from 'lucide-react';
+import axios from 'axios';
 
 import { buildColumns, Customer } from "./columns";
 import { DataTable } from "./data-table";
@@ -24,10 +26,12 @@ import { useTranslation } from 'react-i18next';
 // ── Types ────────────────────────────────────────────────────────────────────
 interface Props {
     customers: any;
+    parentCustomers: any[];
     filters: { search?: string };
 }
 
 const EMPTY_FORM = {
+    parent_id: '',
     name: '',
     phone: '',
     address: '',
@@ -36,6 +40,7 @@ const EMPTY_FORM = {
 };
 
 const getEmptyForm = () => ({
+    parent_id: '',
     name: '',
     phone: '',
     address: '',
@@ -45,7 +50,7 @@ const getEmptyForm = () => ({
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
-export default function Index({ customers, filters }: Props) {
+export default function Index({ customers, parentCustomers, filters }: Props) {
 
     const { t } = useTranslation();
 
@@ -60,6 +65,16 @@ export default function Index({ customers, filters }: Props) {
     // Delete state
     const [deletingCustomer, setDeletingCustomer] = useState<Customer | null>(null);
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+
+    // View state
+    const [viewingCustomer, setViewingCustomer] = useState<Customer | null>(null);
+    const [isViewOpen, setIsViewOpen] = useState(false);
+
+    // Statement state
+    const [statementCustomer, setStatementCustomer] = useState<Customer | null>(null);
+    const [isStatementOpen, setIsStatementOpen] = useState(false);
+    const [statementData, setStatementData] = useState<any[]>([]);
+    const [isFetchingStatement, setIsFetchingStatement] = useState(false);
 
     // Form state (managed manually — not useForm — because image is a File)
     // const [form, setForm] = useState(EMPTY_FORM);
@@ -80,9 +95,15 @@ export default function Index({ customers, filters }: Props) {
         setIsOpen(true);
     };
 
+    const openViewModal = (customer: Customer) => {
+        setViewingCustomer(customer);
+        setIsViewOpen(true);
+    };
+
     const openEditModal = (customer: Customer) => {
         setEditingCustomer(customer);
         setForm({
+            parent_id: customer.parent_id != null ? String(customer.parent_id) : '',
             name: customer.name ?? '',
             phone: String(customer.phone ?? ''),
             address: (customer as any).address ?? '',
@@ -90,6 +111,22 @@ export default function Index({ customers, filters }: Props) {
             status: customer.status,
         });
         setIsOpen(true);
+    };
+
+    const openStatementModal = (customer: Customer) => {
+        setStatementCustomer(customer);
+        setIsStatementOpen(true);
+        setIsFetchingStatement(true);
+        axios.get(`/customers/${customer.id}/statement`)
+            .then(res => {
+                setStatementData(res.data.orders);
+            })
+            .catch(err => {
+                toast.error('Failed to load statement data.');
+            })
+            .finally(() => {
+                setIsFetchingStatement(false);
+            });
     };
 
     // ── Submit ────────────────────────────────────────────────────────────────
@@ -100,6 +137,7 @@ export default function Index({ customers, filters }: Props) {
         setErrors({});
 
         const fd = new FormData();
+        if (form.parent_id && form.parent_id !== 'none') fd.append('parent_id', form.parent_id);
         fd.append('name', form.name);
         fd.append('phone', form.phone);
         fd.append('address', form.address);
@@ -163,6 +201,56 @@ export default function Index({ customers, filters }: Props) {
         });
     };
 
+    const handlePrint = () => {
+        const printContent = document.getElementById('printable-customer-info');
+        if (printContent) {
+            const printWindow = window.open('', '_blank');
+            printWindow?.document.write(`
+                <!DOCTYPE html>
+                <html>
+                    <head>
+                        <meta charset="UTF-8">
+                        <title>Print</title>
+                        <style>
+                            body { font-family: sans-serif; padding: 40px; color: #111827; }
+                            .grid { display: grid; }
+                            .grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+                            .col-span-2 { grid-column: span 2 / span 2; }
+                            .gap-2 { gap: 0.5rem; }
+                            .border-b { border-bottom-width: 1px; border-bottom-style: solid; border-color: #e5e7eb; }
+                            .pb-2 { padding-bottom: 0.5rem; }
+                            .font-semibold { font-weight: 600; }
+                            .text-gray-600 { color: #4b5563; }
+                            .capitalize { text-transform: capitalize; }
+                            .mb-2 { margin-bottom: 0.5rem; }
+                            .mt-4 { margin-top: 1rem; }
+                            .list-disc { list-style-type: disc; }
+                            .list-inside { list-style-position: inside; }
+                            .space-y-1 > :not([hidden]) ~ :not([hidden]) { margin-top: 0.25rem; }
+                            .ml-2 { margin-left: 0.5rem; }
+                            @media print {
+                                body { padding: 0; }
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <h2 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 1.5rem; text-align: center; border-bottom: 2px solid #e5e7eb; padding-bottom: 10px;">ព័ត៌មានលម្អិត</h2>
+                        ${printContent.innerHTML}
+                        <script>
+                            window.onload = () => {
+                                setTimeout(() => {
+                                    window.print();
+                                    window.close();
+                                }, 250);
+                            }
+                        </script>
+                    </body>
+                </html>
+            `);
+            printWindow?.document.close();
+        }
+    };
+
     useEffect(() => {
         const timeout = setTimeout(() => {
             router.get('/customers', {
@@ -189,7 +277,7 @@ export default function Index({ customers, filters }: Props) {
 
     // ── Table columns (with callbacks wired) ─────────────────────────────────
 
-    const columns = buildColumns(openEditModal, handleDelete);
+    const columns = buildColumns(openViewModal, openEditModal, handleDelete, openStatementModal);
 
     // ── Render ────────────────────────────────────────────────────────────────
 
@@ -262,6 +350,25 @@ export default function Index({ customers, filters }: Props) {
                         </DialogHeader>
 
                         <div className="space-y-4">
+
+                            {/* Parent Customer */}
+                            <div className="space-y-1">
+                                <Label>{t('depot.depot_parent_label')}</Label>
+                                <Select value={form.parent_id} onValueChange={v => setForm(f => ({ ...f, parent_id: v }))}>
+                                    <SelectTrigger className="w-full">
+                                        <SelectValue placeholder={t('depot.depot_parent_select')} />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="none">{t('depot.depot_parent_select')}</SelectItem>
+                                        {parentCustomers.filter(pc => pc.id !== editingCustomer?.id).map((pc: any) => (
+                                            <SelectItem key={pc.id} value={String(pc.id)}>
+                                                {pc.name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                {errors.parent_id && <p className="text-red-500 text-xs">{errors.parent_id}</p>}
+                            </div>
 
                             {/* Product Name */}
                             <div className="space-y-1">
@@ -369,6 +476,165 @@ export default function Index({ customers, filters }: Props) {
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
+
+            {/* ── View Dialog ────────────────────────────────────────────── */}
+            <Dialog open={isViewOpen} onOpenChange={setIsViewOpen}>
+                <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
+                    <DialogHeader>
+                        <DialogTitle>ព័ត៌មានលម្អិត</DialogTitle>
+                    </DialogHeader>
+                    {viewingCustomer && (
+                        <div id="printable-customer-info" className="space-y-4 text-sm mt-4">
+                            <div className="grid grid-cols-3 gap-2 border-b pb-2">
+                                <span className="font-semibold text-gray-600">ឈ្មោះ:</span>
+                                <span className="col-span-2">{viewingCustomer.name}</span>
+                            </div>
+                            <div className="grid grid-cols-3 gap-2 border-b pb-2">
+                                <span className="font-semibold text-gray-600">ទូរស័ព្ទ:</span>
+                                <span className="col-span-2">{viewingCustomer.phone}</span>
+                            </div>
+                            <div className="grid grid-cols-3 gap-2 border-b pb-2">
+                                <span className="font-semibold text-gray-600">អាស័យដ្ឋាន:</span>
+                                <span className="col-span-2">{viewingCustomer.address || '-'}</span>
+                            </div>
+                            <div className="grid grid-cols-3 gap-2 border-b pb-2">
+                                <span className="font-semibold text-gray-600">ស្ថានភាព:</span>
+                                <span className="col-span-2 capitalize">{viewingCustomer.status}</span>
+                            </div>
+
+                            {viewingCustomer.parent && (
+                                <div className="grid grid-cols-3 gap-2 border-b pb-2">
+                                    <span className="font-semibold text-gray-600">ដេប៉ូ:</span>
+                                    <span className="col-span-2">{viewingCustomer.parent.name}</span>
+                                </div>
+                            )}
+
+                            {viewingCustomer.sub_customers && viewingCustomer.sub_customers.length > 0 && (
+                                <div>
+                                    <h4 className="font-semibold text-gray-600 mb-2 mt-4">ដេប៉ូចំណុះ:</h4>
+                                    <ul className="list-disc list-inside space-y-1 ml-2">
+                                        {viewingCustomer.sub_customers.map(sub => (
+                                            <li key={sub.id}>{sub.name} - {sub.phone}</li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
+                        </div>
+                    )}
+                    <DialogFooter className="mt-6 flex sm:justify-between w-full">
+                        <Button variant="outline" onClick={handlePrint} className="gap-2">
+                            <PrinterIcon className="h-4 w-4" />
+                            បោះពុម្ព
+                        </Button>
+                        <Button variant="outline" onClick={() => setIsViewOpen(false)}>
+                            ចាកចេញ
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            {/* ── Statement Dialog ────────────────────────────────────────────── */}
+            <Dialog open={isStatementOpen} onOpenChange={setIsStatementOpen}>
+                <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                    <DialogHeader>
+                        <DialogTitle>របាយការណ៍ការលក់ - {statementCustomer?.name}</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4" id="printable-statement">
+                        {isFetchingStatement ? (
+                            <div className="flex justify-center p-8 text-gray-500">កំពុងផ្ទុកទិន្នន័យ...</div>
+                        ) : (
+                            <div>
+                                <div className="mb-4 text-center">
+                                    <h2 className="text-xl font-bold">{statementCustomer?.name} Sales Report</h2>
+                                    <p className="text-sm text-gray-500">Including sub-customers</p>
+                                </div>
+                                <table className="w-full text-sm text-left border-collapse border border-gray-200">
+                                    <thead className="bg-gray-100 text-gray-600">
+                                        <tr>
+                                            <th className="border border-gray-200 p-2">Date</th>
+                                            <th className="border border-gray-200 p-2">Invoice No</th>
+                                            <th className="border border-gray-200 p-2">Customer</th>
+                                            <th className="border border-gray-200 p-2">Total Amount</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {statementData.length > 0 ? (
+                                            statementData.map(order => (
+                                                <tr key={order.id} className="hover:bg-gray-50">
+                                                    <td className="border border-gray-200 p-2">{new Date(order.order_date).toLocaleDateString('en-GB')}</td>
+                                                    <td className="border border-gray-200 p-2 font-medium">{order.invoice_no}</td>
+                                                    <td className="border border-gray-200 p-2">
+                                                        {order.customer ? (order.customer.parent ? order.customer.parent.name + ' - ' + order.customer.name : order.customer.name) : 'Walk-in Customer'}
+                                                    </td>
+                                                    <td className="border border-gray-200 p-2">${Number(order.total_amount).toFixed(2)}</td>
+                                                </tr>
+                                            ))
+                                        ) : (
+                                            <tr><td colSpan={4} className="text-center p-6 text-gray-500">No sales found</td></tr>
+                                        )}
+                                    </tbody>
+                                </table>
+                            </div>
+                        )}
+                    </div>
+                    <DialogFooter className="mt-6 flex sm:justify-between w-full">
+                        <div className="flex gap-2">
+                            <Button variant="outline" onClick={() => {
+                                const content = document.getElementById('printable-statement');
+                                if (content) {
+                                    const printWindow = window.open('', '_blank');
+                                    printWindow?.document.write(`
+                                        <html><head><title>Print Statement</title>
+                                        <style>
+                                            body { font-family: sans-serif; padding: 20px; color: #111827; }
+                                            table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 14px; }
+                                            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                                            th { background-color: #f3f4f6; }
+                                            .text-center { text-align: center; }
+                                            h2 { margin: 0; font-size: 1.5rem; font-weight: bold; }
+                                            p { margin: 5px 0 0 0; color: #6b7280; }
+                                            .mb-4 { margin-bottom: 1rem; }
+                                        </style>
+                                        </head><body>${content.innerHTML}
+                                        <script>window.onload=()=>setTimeout(()=>{window.print();window.close();},250)</script>
+                                        </body></html>
+                                    `);
+                                    printWindow?.document.close();
+                                }
+                            }} className="gap-2">
+                                <PrinterIcon className="h-4 w-4" />
+                                បោះពុម្ព
+                            </Button>
+                            <Button variant="outline" onClick={() => {
+                                if (!statementData.length) return;
+                                const headers = ['Date', 'Invoice No', 'Customer', 'Total Amount'];
+                                const csvRows = [headers.join(',')];
+                                statementData.forEach(order => {
+                                    const date = new Date(order.order_date).toLocaleDateString('en-GB');
+                                    const invoice = order.invoice_no;
+                                    const cName = order.customer ? (order.customer.parent ? order.customer.parent.name + ' - ' + order.customer.name : order.customer.name) : 'Walk-in Customer';
+                                    const customerName = '"' + cName.replace(/"/g, '""') + '"';
+                                    const total = order.total_amount;
+                                    csvRows.push([date, invoice, customerName, total].join(','));
+                                });
+                                const csvString = csvRows.join('\\n');
+                                const blob = new Blob(['\\uFEFF' + csvString], { type: 'text/csv;charset=utf-8;' });
+                                const url = window.URL.createObjectURL(blob);
+                                const a = document.createElement('a');
+                                a.href = url;
+                                a.download = 'statement_' + (statementCustomer?.name || 'customer') + '.csv';
+                                a.click();
+                            }} className="gap-2 text-green-700 hover:text-green-800 hover:bg-green-50">
+                                <FileSpreadsheetIcon className="h-4 w-4" />
+                                Export Excel
+                            </Button>
+                        </div>
+                        <Button variant="outline" onClick={() => setIsStatementOpen(false)}>
+                            ចាកចេញ
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </>
     );
 }

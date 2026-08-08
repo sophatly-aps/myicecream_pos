@@ -30,7 +30,8 @@
         "advance_salary": "Advance Salary",
         "payslip": "Payslip",
         "employee_absence": "Employee Absence",
-        "account_payable": "Account Payable"
+        "account_payable": "Account Payable",
+        "sale_by_customer": "Sale by Customer"
     },
     "dashboard": {
         "title": "Dashboard",
@@ -58,6 +59,16 @@
         "cash": "Cash",
         "Khmer": "Khmer",
         "English": "English"
+    },
+    "sale_by_customer": {
+        "title": "Sale by Customer",
+        "description": "Total sales grouped by customer",
+        "customer": "Customer",
+        "total_orders": "Total Orders",
+        "total_amount": "Total Amount",
+        "paid_amount": "Paid Amount",
+        "due_amount": "Due Amount",
+        "all_customers": "All Customers"
     },
     "pos": {
         "item": "Item",
@@ -209,6 +220,8 @@
         "customer_search_placeholder": "All Customers"
     },
     "depot": {
+        "depot_parent_label": "Parent Depot",
+        "depot_parent_select": "Select a parent Depot",
         "depot_label": "Depots",
         "all_depot": "All Depots",
         "search_placeholder": "Search Depot Name...",

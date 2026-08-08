@@ -44,9 +44,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('expense/export', [ExpenseController::class, 'export'])->name('expense.export');
     Route::get('income-statement/export', [IncomeStatementController::class, 'export'])->name('income.statement.export');
     Route::get('sales-history/export', [SaleDetailController::class, 'export'])->name('sales.history.export');
+    Route::get('sale-by-customer/export', [\App\Http\Controllers\Admin\SaleByCustomerController::class, 'export'])->name('reports.sale_by_customer.export');
     Route::get('employees/export', [EmployeeController::class, 'export'])->name('employees.export');
     Route::get('payslips/export', [PaySlipController::class, 'export'])->name('payslips.export');
-
+    Route::get('customers/{id}/statement', [CustomerController::class, 'statement'])->name('customers.statement');
     Route::resources([
         'categories' => CategoryController::class,
         'products' => ProductController::class,
@@ -65,6 +66,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('sales/receipt/{id}', [ReceiptController::class, 'receipt'])->name('sales.receipt');
     Route::get('sales/printHtml/{id}', [ReceiptController::class, 'printHtml'])->name('sales.printHtml');
     Route::get('sales-history', [SaleDetailController::class, 'index'])->name('sales.history');
+    Route::get('sale-by-customer', [\App\Http\Controllers\Admin\SaleByCustomerController::class, 'index'])->name('reports.sale_by_customer');
     Route::get('test-restore/{id}', function ($id) {
         $order = Order::onlyTrashed()->findOrFail($id);
         $order->restore();

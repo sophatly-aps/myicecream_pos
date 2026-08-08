@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Customer;
+use App\Models\Order;
 use Inertia\Inertia;
 
 class CustomerController extends Controller
@@ -20,10 +21,18 @@ class CustomerController extends Controller
             $query->where('name', 'like', '%' . $request->search . '%');
         }
 
-        $customers = $query->withCount('orders')->paginate(10);
+        $customers = $query->with(['parent', 'subCustomers'])
+            ->withCount('orders')
+            ->orderByRaw('COALESCE(parent_id, id) DESC')
+            ->orderByRaw('parent_id IS NOT NULL ASC')
+            ->orderBy('id', 'DESC')
+            ->paginate(10);
+
+        $parentCustomers = Customer::whereNull('parent_id')->select('id', 'name')->get();
 
         return Inertia::render('customers/index', [
             'customers' => $customers,
+            'parentCustomers' => $parentCustomers,
             'filters' => $request->only('search')
         ]);
     }
@@ -42,6 +51,7 @@ class CustomerController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
+            'parent_id' => 'nullable|exists:customers,id',
             'name' => 'required|string|max:255',
             'phone' => 'required|string|max:255',
             'address' => 'nullable|string|max:255',
@@ -52,6 +62,10 @@ class CustomerController extends Controller
             'phone.required' => 'Phone is required',
             'status.required' => 'Status is required',
         ]);
+
+        if (!$request->has('parent_id')) {
+            $validated['parent_id'] = null;
+        }
 
         Customer::create($validated);
 
@@ -81,6 +95,7 @@ class CustomerController extends Controller
     public function update(Request $request, string $id)
     {
         $validated = $request->validate([
+            'parent_id' => 'nullable|exists:customers,id',
             'name' => 'required|string|max:255',
             'phone' => 'required|string|max:255',
             'address' => 'nullable|string|max:255',
@@ -91,6 +106,10 @@ class CustomerController extends Controller
             'phone.required' => 'Phone is required',
             'status.required' => 'Status is required',
         ]);
+
+        if (!$request->has('parent_id')) {
+            $validated['parent_id'] = null;
+        }
 
         $customer = Customer::findOrFail($id);
         $customer->update($validated);
@@ -115,5 +134,22 @@ class CustomerController extends Controller
 
         return redirect()->route('customers.index')
             ->with('success', 'Customer deleted successfully!');
+    }
+
+    public function statement($id)
+    {
+        $customer = Customer::with('subCustomers')->findOrFail($id);
+        
+        $customerIds = collect([$customer->id])->merge($customer->subCustomers->pluck('id'));
+        
+        $orders = Order::whereIn('customer_id', $customerIds)
+            ->with(['customer', 'details.product'])
+            ->orderBy('order_date', 'desc')
+            ->get();
+            
+        return response()->json([
+            'customer' => $customer,
+            'orders' => $orders
+        ]);
     }
 }

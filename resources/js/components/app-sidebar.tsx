@@ -71,6 +71,12 @@ export function AppSidebar() {
             permission: 'sales.view',
         },
         {
+            title: t('sidebar.sale_by_customer') || 'Sale by Customer',
+            icon: ClipboardCheck,
+            href: '/sale-by-customer',
+            permission: 'sales.view',
+        },
+        {
             title: t('sidebar.account_receivable'),
             icon: PackageSearch,
             href: '/account-receivable',

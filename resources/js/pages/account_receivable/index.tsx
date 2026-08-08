@@ -67,13 +67,13 @@ export default function AccountReceivable({
         { value: 'custom', label: t('ar.date_preset.custom') },
     ];
 
-    const [editFormData, setEditFormData] = useState({
+    const [editFormData, setEditFormData] = useState<any>({
         order_date: '',
         payment_method: '',
         payment_status: '',
         due_amount: 0,
         paid_amount: 0,
-        new_payment: 0,
+        new_payment: '',
     });
     const [isSaving, setIsSaving] = useState(false);
 
@@ -88,7 +88,7 @@ export default function AccountReceivable({
             paid_amount: Number(order.paid_amount || 0),
 
             // amount user wants to pay now
-            new_payment: 0,
+            new_payment: '',
         });
     };
 
@@ -859,12 +859,22 @@ export default function AccountReceivable({
                                 <select
                                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 font-sans text-sm outline-none"
                                     value={editFormData.payment_status}
-                                    onChange={(e) =>
+                                    onChange={(e) => {
+                                        const status = e.target.value;
+                                        let newPayment = editFormData.new_payment;
+
+                                        if (status === 'paid') {
+                                            newPayment = oldDueAmount.toString();
+                                        } else if (status === 'due') {
+                                            newPayment = '';
+                                        }
+
                                         setEditFormData({
                                             ...editFormData,
-                                            payment_status: e.target.value,
-                                        })
-                                    }
+                                            payment_status: status,
+                                            new_payment: newPayment,
+                                        });
+                                    }}
                                 >
                                     <option value="paid">
                                         {t('sales.payment_status.paid')}
@@ -887,17 +897,17 @@ export default function AccountReceivable({
                                     min="0"
                                     step="0.01"
                                     className="font-sans font-bold"
-                                    value={editFormData.new_payment || ''}
+                                    value={editFormData.new_payment}
                                     onChange={(e) => {
-                                        let value = Number(e.target.value);
+                                        let val = e.target.value;
 
-                                        if (value > oldDueAmount) {
-                                            value = oldDueAmount;
+                                        if (Number(val) > oldDueAmount) {
+                                            val = oldDueAmount.toString();
                                         }
 
                                         setEditFormData({
                                             ...editFormData,
-                                            new_payment: value,
+                                            new_payment: val,
                                         });
                                     }}
                                 />

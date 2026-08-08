@@ -213,7 +213,22 @@ export default function History({
             }),
             columnHelper.accessor('customer.name', {
                 header: t('sales.customer'),
-                cell: (info) => info.getValue() || t('pos.all'),
+                cell: (info) => {
+                    const customer = info.row.original.customer;
+                    if (!customer) return t('pos.all');
+                    if (customer.parent) {
+                        return (
+                            <div className="flex flex-col leading-tight py-1">
+                                <span className="font-medium text-gray-800">{customer.parent.name}</span>
+                                <span className="text-xs text-gray-500 flex items-center gap-1 mt-0.5">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-corner-down-right"><polyline points="15 10 20 15 15 20"/><path d="M4 4v7a4 4 0 0 0 4 4h12"/></svg>
+                                    {customer.name}
+                                </span>
+                            </div>
+                        );
+                    }
+                    return customer.name;
+                },
             }),
             columnHelper.accessor('order_date', {
                 header: t('sales.date'),
@@ -624,8 +639,13 @@ export default function History({
                                         {t('sales.customer')}
                                     </p>
                                     <p className="text-[13px] font-bold text-gray-800">
-                                        {viewOrder.customer?.name ||
-                                            'Walk-in Customer'}
+                                        {viewOrder.customer?.parent ? (
+                                            <>
+                                                {viewOrder.customer.parent.name} <span className="text-gray-500 font-normal ml-1">({viewOrder.customer.name})</span>
+                                            </>
+                                        ) : (
+                                            viewOrder.customer?.name || 'Walk-in Customer'
+                                        )}
                                     </p>
                                 </div>
                                 <div className="text-right">

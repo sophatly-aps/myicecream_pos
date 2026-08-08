@@ -80,7 +80,7 @@ class SaleDetailController extends Controller
         // 1. Join customers table and order by customer name alphabetically
         $query = Order::select('orders.*') // Explicitly select order columns to avoid column overwriting
             ->join('customers', 'orders.customer_id', '=', 'customers.id')
-            ->with(['customer', 'user', 'details.product'])
+            ->with(['customer.parent', 'user', 'details.product'])
             ->orderBy('orders.created_at', 'desc')
             ->orderBy('customers.name', 'asc');
         if ($request->filled('preset') && $request->preset === 'trash') {
@@ -142,7 +142,7 @@ class SaleDetailController extends Controller
         $settings = Setting::pluck('value', 'key')->toArray();
         $currency = $settings['currency_symbol'] ?? '$';
 
-        $query = Order::with(['customer', 'user', 'details.product'])->orderBy('id', 'desc');
+        $query = Order::with(['customer.parent', 'user', 'details.product'])->orderBy('id', 'desc');
 
         if ($request->filled('preset') && $request->preset === 'trash') {
             $query->onlyTrashed();
@@ -204,7 +204,7 @@ class SaleDetailController extends Controller
                     fputcsv($file, [
                         $order->id,
                         $order->invoice_no,
-                        $order->customer->name ?? 'Walk-in Customer',
+                        $order->customer ? ($order->customer->parent ? $order->customer->parent->name . ' - ' . $order->customer->name : $order->customer->name) : 'Walk-in Customer',
                         date('d/m/Y', strtotime($order->order_date)),
                         $order->sub_total,
                         $order->tax_amount,
