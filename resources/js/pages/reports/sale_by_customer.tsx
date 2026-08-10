@@ -86,7 +86,7 @@ export default function SaleByCustomer({
                             <div className="flex flex-col leading-tight py-1">
                                 <span className="font-medium text-gray-800">{customer.parent.name}</span>
                                 <span className="text-xs text-gray-500 flex items-center gap-1 mt-0.5">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-corner-down-right"><polyline points="15 10 20 15 15 20"/><path d="M4 4v7a4 4 0 0 0 4 4h12"/></svg>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-corner-down-right"><polyline points="15 10 20 15 15 20" /><path d="M4 4v7a4 4 0 0 0 4 4h12" /></svg>
                                     {customer.name}
                                 </span>
                             </div>
@@ -186,7 +186,7 @@ export default function SaleByCustomer({
                         <>
                             <div className="flex w-full flex-col gap-1 md:w-40">
                                 <label className="text-xs font-bold text-gray-500 uppercase">
-                                    From Date
+                                    ថ្ងៃចាប់ផ្តើម
                                 </label>
                                 <Input
                                     type="date"
@@ -196,7 +196,7 @@ export default function SaleByCustomer({
                             </div>
                             <div className="flex w-full flex-col gap-1 md:w-40">
                                 <label className="text-xs font-bold text-gray-500 uppercase">
-                                    To Date
+                                    ថ្ងៃបញ្ចប់
                                 </label>
                                 <Input
                                     type="date"
@@ -359,13 +359,12 @@ export default function SaleByCustomer({
                                         dangerouslySetInnerHTML={{
                                             __html: link.label,
                                         }}
-                                        className={`rounded-md border px-4 py-2 text-sm transition-all ${
-                                            link.active
-                                                ? 'border-indigo-600 bg-indigo-600 font-bold text-white'
-                                                : !link.url
-                                                  ? 'cursor-not-allowed border-gray-200 bg-gray-50 text-gray-400'
-                                                  : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50 hover:text-indigo-600'
-                                        }`}
+                                        className={`rounded-md border px-4 py-2 text-sm transition-all ${link.active
+                                            ? 'border-indigo-600 bg-indigo-600 font-bold text-white'
+                                            : !link.url
+                                                ? 'cursor-not-allowed border-gray-200 bg-gray-50 text-gray-400'
+                                                : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50 hover:text-indigo-600'
+                                            }`}
                                     />
                                 ))}
                             </div>
