@@ -17,6 +17,7 @@ export interface Customer {
     address?: string;
     status: string;
     other_info: string;
+    start_date?: string | null;
     orders_count: number;
 }
 
@@ -108,6 +109,14 @@ export function buildColumns(
         {
             accessorKey: "other_info",
             header: t('depot.other_info'),
+        },
+        {
+            accessorKey: "start_date",
+            header: t('depot.start_date', { defaultValue: 'Start Date' }),
+            cell: ({ row }) => {
+                const date = row.getValue<string>("start_date");
+                return date ? new Date(date).toLocaleDateString('en-GB') : '-';
+            }
         },
         {
             accessorKey: "status",

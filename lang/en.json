@@ -236,6 +236,7 @@
             "active": "Active",
             "inactive": "Inactive"
         },
+        "start_date": "Start Date",
         "status_label": "Status",
         "action": "Action",
         "add_description": "Fill in the details of the new depot.",

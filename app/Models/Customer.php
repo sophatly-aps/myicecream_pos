@@ -13,6 +13,7 @@ class Customer extends Model
         'address',
         'other_info',
         'status',
+        'start_date',
     ];
 
     public function parent()

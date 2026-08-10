@@ -57,6 +57,7 @@ class CustomerController extends Controller
             'address' => 'nullable|string|max:255',
             'other_info' => 'nullable|string|max:255',
             'status' => 'required|string|max:255',
+            'start_date' => 'nullable|date',
         ],[
             'name.required' => 'Name is required',
             'phone.required' => 'Phone is required',
@@ -101,6 +102,7 @@ class CustomerController extends Controller
             'address' => 'nullable|string|max:255',
             'other_info' => 'nullable|string|max:255',
             'status' => 'required|string|max:255',
+            'start_date' => 'nullable|date',
         ],[
             'name.required' => 'Name is required',
             'phone.required' => 'Phone is required',

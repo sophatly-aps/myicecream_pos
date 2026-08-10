@@ -45,6 +45,7 @@ const getEmptyForm = () => ({
     phone: '',
     address: '',
     other_info: '',
+    start_date: '',
     status: '',
 });
 
@@ -108,6 +109,7 @@ export default function Index({ customers, parentCustomers, filters }: Props) {
             phone: String(customer.phone ?? ''),
             address: (customer as any).address ?? '',
             other_info: customer.other_info != null ? String(customer.other_info) : '',
+            start_date: customer.start_date ?? '',
             status: customer.status,
         });
         setIsOpen(true);
@@ -142,6 +144,7 @@ export default function Index({ customers, parentCustomers, filters }: Props) {
         fd.append('phone', form.phone);
         fd.append('address', form.address);
         fd.append('other_info', form.other_info);
+        if (form.start_date) fd.append('start_date', form.start_date);
         fd.append('status', form.status);
 
         if (editingCustomer) {
@@ -425,6 +428,18 @@ export default function Index({ customers, parentCustomers, filters }: Props) {
                                 </div>
                             </div>
 
+                            {/* Start Date */}
+                            <div className="space-y-1">
+                                <Label htmlFor="start_date">{t('depot.start_date', { defaultValue: 'Start Date' })}</Label>
+                                <Input
+                                    id="start_date"
+                                    type="date"
+                                    value={form.start_date}
+                                    onChange={e => setForm(f => ({ ...f, start_date: e.target.value }))}
+                                />
+                                {errors.start_date && <p className="text-red-500 text-xs">{errors.start_date}</p>}
+                            </div>
+
                             {/* Product Status */}
                             <div className="space-y-1">
                                 <Label>{t('depot.status_label')} <span className="text-red-500">*</span></Label>
@@ -500,6 +515,10 @@ export default function Index({ customers, parentCustomers, filters }: Props) {
                             <div className="grid grid-cols-3 gap-2 border-b pb-2">
                                 <span className="font-semibold text-gray-600">ស្ថានភាព:</span>
                                 <span className="col-span-2 capitalize">{viewingCustomer.status}</span>
+                            </div>
+                            <div className="grid grid-cols-3 gap-2 border-b pb-2">
+                                <span className="font-semibold text-gray-600">{t('depot.start_date', { defaultValue: 'ថ្ងៃចាប់ផ្តើម' })}:</span>
+                                <span className="col-span-2">{viewingCustomer.start_date ? new Date(viewingCustomer.start_date).toLocaleDateString('en-GB') : '-'}</span>
                             </div>
 
                             {viewingCustomer.parent && (
