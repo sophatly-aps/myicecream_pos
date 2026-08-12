@@ -45,8 +45,8 @@ export default function AccountReceivable({
     const currency = settings?.currency_symbol || '$';
     const formatMoney = (val: any) =>
         Number(val || 0).toLocaleString('en-US', {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
         });
 
     const [customerId, setCustomerId] = useState(filters?.customer_id || 'all');
@@ -564,10 +564,10 @@ export default function AccountReceivable({
                                             __html: link.label,
                                         }}
                                         className={`rounded-md border px-4 py-2 text-sm transition-all ${link.active
-                                                ? 'border-indigo-600 bg-indigo-600 font-bold text-white'
-                                                : !link.url
-                                                    ? 'cursor-not-allowed border-gray-200 bg-gray-50 text-gray-400'
-                                                    : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50 hover:text-indigo-600'
+                                            ? 'border-indigo-600 bg-indigo-600 font-bold text-white'
+                                            : !link.url
+                                                ? 'cursor-not-allowed border-gray-200 bg-gray-50 text-gray-400'
+                                                : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50 hover:text-indigo-600'
                                             }`}
                                     />
                                 ))}

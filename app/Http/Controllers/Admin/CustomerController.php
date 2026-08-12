@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Customer;
+use App\Models\Setting;
 use App\Models\Order;
+use App\Models\RentPayment;
 use Inertia\Inertia;
 
 class CustomerController extends Controller
@@ -15,7 +17,9 @@ class CustomerController extends Controller
      */
     public function index(Request $request)
     {
-       $query = Customer::query();
+
+        $settings = Setting::pluck('value', 'key')->toArray();
+        $query = Customer::query();
 
         if ($request->filled('search')) {
             $query->where('name', 'like', '%' . $request->search . '%');
@@ -32,6 +36,7 @@ class CustomerController extends Controller
 
         return Inertia::render('customers/index', [
             'customers' => $customers,
+            'settings' => $settings,
             'parentCustomers' => $parentCustomers,
             'filters' => $request->only('search')
         ]);
@@ -58,6 +63,8 @@ class CustomerController extends Controller
             'other_info' => 'nullable|string|max:255',
             'status' => 'required|string|max:255',
             'start_date' => 'nullable|date',
+            'rent_due_date' => 'nullable|date',
+            'rent_amount' => 'nullable|numeric',
         ],[
             'name.required' => 'Name is required',
             'phone.required' => 'Phone is required',
@@ -103,6 +110,8 @@ class CustomerController extends Controller
             'other_info' => 'nullable|string|max:255',
             'status' => 'required|string|max:255',
             'start_date' => 'nullable|date',
+            'rent_due_date' => 'nullable|date',
+            'rent_amount' => 'nullable|numeric',
         ],[
             'name.required' => 'Name is required',
             'phone.required' => 'Phone is required',
@@ -154,4 +163,102 @@ class CustomerController extends Controller
             'orders' => $orders
         ]);
     }
+
+    public function payRent(Request $request, Customer $customer)
+    {
+        $validated = $request->validate([
+            'payment_date' => 'required|date',
+            'payment_amount' => 'required|numeric|min:0',
+            'next_due_date' => 'required|date|after:payment_date',
+        ]);
+
+        $customer->update([
+            'rent_due_date' => $validated['next_due_date'],
+            'last_paid_date' => $validated['payment_date'],
+            'rent_amount' => $validated['payment_amount'],
+        ]);
+
+        RentPayment::create([
+            'customer_id' => $customer->id,
+            'payment_date' => $validated['payment_date'],
+            'amount' => $validated['payment_amount'],
+            'next_due_date' => $validated['next_due_date'],
+            'notes' => $request->notes ?? null,
+        ]);
+        
+
+        return response()->json([
+            'message' => 'Rent payment recorded successfully',
+            'customer' => $customer->fresh(['parent', 'subCustomers'])
+        ]);
+    }
+
+     public function rentHistory($id)
+    {
+        $customer = Customer::with(['rentPayments' => function($query) {
+            $query->orderBy('payment_date', 'desc');
+        }])->findOrFail($id);
+
+        $settings = Setting::pluck('value', 'key')->toArray();
+
+        return Inertia::render('customers/rent-history', [
+            'customer' => $customer,
+            'rentPayments' => $customer->rentPayments,
+            'settings' => $settings,
+        ]);
+    }
+
+    /**
+     * Get rent payment history as JSON (for API/export)
+     */
+    public function getRentHistoryApi($id)
+    {
+        $customer = Customer::with(['rentPayments' => function($query) {
+            $query->orderBy('payment_date', 'desc');
+        }])->findOrFail($id);
+
+        return response()->json([
+            'customer' => $customer,
+            'rentPayments' => $customer->rentPayments
+        ]);
+    }
+
+    /**
+     * Export rent payment history
+     */
+    public function exportRentHistory($id)
+    {
+        $customer = Customer::with(['rentPayments' => function($query) {
+            $query->orderBy('payment_date', 'desc');
+        }])->findOrFail($id);
+
+        // Generate CSV
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => "attachment; filename=rent_history_{$customer->name}.csv",
+        ];
+
+        $callback = function() use ($customer) {
+            $file = fopen('php://output', 'w');
+            
+            // Add headers
+            fputcsv($file, ['Payment Date', 'Amount', 'Next Due Date', 'Notes']);
+            
+            // Add data
+            foreach ($customer->rentPayments as $payment) {
+                fputcsv($file, [
+                    $payment->payment_date,
+                    $payment->amount,
+                    $payment->next_due_date,
+                    $payment->notes ?? '',
+                ]);
+            }
+            
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+
 }

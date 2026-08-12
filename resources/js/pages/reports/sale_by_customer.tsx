@@ -106,7 +106,10 @@ export default function SaleByCustomer({
                 cell: (info) => (
                     <span className="font-bold text-indigo-700">
                         {currency}
-                        {Number(info.getValue() || 0).toFixed(2)}
+                        {Number(info.getValue()).toLocaleString('en-US', {
+                            minimumFractionDigits: 0,
+                            maximumFractionDigits: 0
+                        })}
                     </span>
                 ),
             }),
@@ -115,7 +118,10 @@ export default function SaleByCustomer({
                 cell: (info) => (
                     <span className="font-bold text-green-700">
                         {currency}
-                        {Number(info.getValue() || 0).toFixed(2)}
+                        {Number(info.getValue()).toLocaleString('en-US', {
+                            minimumFractionDigits: 0,
+                            maximumFractionDigits: 0
+                        })}
                     </span>
                 ),
             }),
@@ -126,7 +132,10 @@ export default function SaleByCustomer({
                     return (
                         <span className={`font-bold ${val > 0 ? 'text-red-600' : 'text-gray-500'}`}>
                             {currency}
-                            {val.toFixed(2)}
+                            {Number(info.getValue()).toLocaleString('en-US', {
+                                minimumFractionDigits: 0,
+                                maximumFractionDigits: 0
+                            })}
                         </span>
                     );
                 },
@@ -236,8 +245,8 @@ export default function SaleByCustomer({
                         <div className="text-2xl font-black text-indigo-700">
                             {currency}
                             {Number(totals?.total_amount || 0).toLocaleString('en-US', {
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2,
+                                minimumFractionDigits: 0,
+                                maximumFractionDigits: 0,
                             })}
                         </div>
                     </div>
@@ -251,8 +260,8 @@ export default function SaleByCustomer({
                         <div className="text-2xl font-black text-green-700">
                             {currency}
                             {Number(totals?.paid_amount || 0).toLocaleString('en-US', {
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2,
+                                minimumFractionDigits: 0,
+                                maximumFractionDigits: 0,
                             })}
                         </div>
                     </div>
@@ -266,8 +275,8 @@ export default function SaleByCustomer({
                         <div className="text-2xl font-black text-red-700">
                             {currency}
                             {Number(totals?.due_amount || 0).toLocaleString('en-US', {
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2,
+                                minimumFractionDigits: 0,
+                                maximumFractionDigits: 0,
                             })}
                         </div>
                     </div>

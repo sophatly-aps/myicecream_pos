@@ -48,6 +48,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('employees/export', [EmployeeController::class, 'export'])->name('employees.export');
     Route::get('payslips/export', [PaySlipController::class, 'export'])->name('payslips.export');
     Route::get('customers/{id}/statement', [CustomerController::class, 'statement'])->name('customers.statement');
+
+    // Customer routes - CUSTOM ROUTES MUST COME BEFORE RESOURCE ROUTES
+    Route::post('customers/{customer}/pay-rent', [CustomerController::class, 'payRent'])->name('customers.pay-rent');
+
+    Route::get('customers/{id}/rent-history', [CustomerController::class, 'rentHistory'])->name('customers.rent-history');
+    Route::get('customers/{id}/rent-history/export', [CustomerController::class, 'exportRentHistory'])->name('customers.rent-history.export');
+
     Route::resources([
         'categories' => CategoryController::class,
         'products' => ProductController::class,

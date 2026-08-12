@@ -38,27 +38,6 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 
-// ── Types ────────────────────────────────────────────────────────────────────
-
-// interface Props {
-//     expenses: Expense[];
-//     settings: Record<string, any>;
-//     filters?: Record<string, any>;
-// }
-
-// 1. Define what a single Expense looks like
-// interface Expense {
-//     id: number;
-//     user_name: string;
-//     expense_date: string;
-//     expense_name: string;
-//     description: string;
-//     unit: string;
-//     expense_amount: number;
-//     created_at: string;
-//     status: string;
-// }
-
 interface PaginationLink {
     url: string | null;
     label: string;
@@ -413,15 +392,13 @@ export default function Index({ expenses, settings, filters }: Props) {
                                                 dangerouslySetInnerHTML={{
                                                     __html: link.label,
                                                 }}
-                                                className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold transition-colors focus:z-20 ${
-                                                    link.active
-                                                        ? 'z-10 bg-blue-600 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600'
-                                                        : 'text-gray-900 ring-1 ring-gray-300 ring-inset hover:bg-gray-50 focus:outline-offset-0'
-                                                } ${!link.url ? 'pointer-events-none text-gray-300' : ''} ${
-                                                    index === 0
+                                                className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold transition-colors focus:z-20 ${link.active
+                                                    ? 'z-10 bg-blue-600 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600'
+                                                    : 'text-gray-900 ring-1 ring-gray-300 ring-inset hover:bg-gray-50 focus:outline-offset-0'
+                                                    } ${!link.url ? 'pointer-events-none text-gray-300' : ''} ${index === 0
                                                         ? 'rounded-l-md'
                                                         : ''
-                                                } ${index === expenses.links.length - 1 ? 'rounded-r-md' : ''}`}
+                                                    } ${index === expenses.links.length - 1 ? 'rounded-r-md' : ''}`}
                                             />
                                         ))}
                                     </nav>
@@ -699,8 +676,8 @@ export default function Index({ expenses, settings, filters }: Props) {
                                 {processing
                                     ? t('expense.save_processing')
                                     : editingExpense
-                                      ? t('expense.update_expense')
-                                      : t('expense.add_expense')}
+                                        ? t('expense.update_expense')
+                                        : t('expense.add_expense')}
                             </Button>
                         </DialogFooter>
                     </form>

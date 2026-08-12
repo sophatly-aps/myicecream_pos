@@ -14,6 +14,9 @@ class Customer extends Model
         'other_info',
         'status',
         'start_date',
+        'rent_due_date',
+        'rent_amount',
+        'last_paid_date',
     ];
 
     public function parent()
@@ -30,4 +33,11 @@ class Customer extends Model
     {
         return $this->hasMany(Order::class);
     }
+
+    public function rentPayments()
+    {
+        return $this->hasMany(RentPayment::class)->orderBy('payment_date', 'desc');
+    }
+
+
 }

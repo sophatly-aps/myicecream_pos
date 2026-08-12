@@ -221,7 +221,7 @@ export default function History({
                             <div className="flex flex-col leading-tight py-1">
                                 <span className="font-medium text-gray-800">{customer.parent.name}</span>
                                 <span className="text-xs text-gray-500 flex items-center gap-1 mt-0.5">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-corner-down-right"><polyline points="15 10 20 15 15 20"/><path d="M4 4v7a4 4 0 0 0 4 4h12"/></svg>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-corner-down-right"><polyline points="15 10 20 15 15 20" /><path d="M4 4v7a4 4 0 0 0 4 4h12" /></svg>
                                     {customer.name}
                                 </span>
                             </div>
@@ -240,7 +240,10 @@ export default function History({
                 cell: (info) => (
                     <span>
                         {currency}
-                        {Number(info.getValue() || 0).toFixed(2)}
+                        {Number(info.getValue() || 0).toLocaleString('en-US', {
+                            minimumFractionDigits: 0,
+                            maximumFractionDigits: 0
+                        })}
                     </span>
                 ),
             }),
@@ -249,7 +252,10 @@ export default function History({
                 cell: (info) => (
                     <span>
                         {currency}
-                        {Number(info.getValue() || 0).toFixed(2)}
+                        {Number(info.getValue() || 0).toLocaleString('en-US', {
+                            minimumFractionDigits: 0,
+                            maximumFractionDigits: 0
+                        })}
                     </span>
                 ),
             }),
@@ -264,7 +270,10 @@ export default function History({
                             }
                         >
                             {currency}
-                            {val.toFixed(2)}
+                            {Number(info.getValue() || 0).toLocaleString('en-US', {
+                                minimumFractionDigits: 0,
+                                maximumFractionDigits: 0
+                            })}
                         </span>
                     );
                 },
@@ -274,7 +283,10 @@ export default function History({
                 cell: (info) => (
                     <span>
                         {currency}
-                        {Number(info.getValue() || 0).toFixed(2)}
+                        {Number(info.getValue() || 0).toLocaleString('en-US', {
+                            minimumFractionDigits: 0,
+                            maximumFractionDigits: 0
+                        })}
                     </span>
                 ),
             }),
@@ -283,7 +295,10 @@ export default function History({
                 cell: (info) => (
                     <span className="font-bold text-indigo-700">
                         {currency}
-                        {Number(info.getValue() || 0).toFixed(2)}
+                        {Number(info.getValue() || 0).toLocaleString('en-US', {
+                            minimumFractionDigits: 0,
+                            maximumFractionDigits: 0
+                        })}
                     </span>
                 ),
             }),
@@ -292,7 +307,10 @@ export default function History({
                 cell: (info) => (
                     <span className="font-bold text-green-700">
                         {currency}
-                        {Number(info.getValue() || 0).toFixed(2)}
+                        {Number(info.getValue() || 0).toLocaleString('en-US', {
+                            minimumFractionDigits: 0,
+                            maximumFractionDigits: 0
+                        })}
                     </span>
                 ),
             }),
@@ -303,8 +321,8 @@ export default function History({
                         {info.getValue() === 'cash'
                             ? t('sales.payment_method.cash')
                             : info.getValue() === 'aba'
-                              ? t('sales.payment_method.aba')
-                              : t('sales.payment_method.wing')}
+                                ? t('sales.payment_method.aba')
+                                : t('sales.payment_method.wing')}
                     </Badge>
                 ),
             }),
@@ -586,13 +604,12 @@ export default function History({
                                         dangerouslySetInnerHTML={{
                                             __html: link.label,
                                         }}
-                                        className={`rounded-md border px-4 py-2 text-sm transition-all ${
-                                            link.active
+                                        className={`rounded-md border px-4 py-2 text-sm transition-all ${link.active
                                                 ? 'border-indigo-600 bg-indigo-600 font-bold text-white'
                                                 : !link.url
-                                                  ? 'cursor-not-allowed border-gray-200 bg-gray-50 text-gray-400'
-                                                  : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50 hover:text-indigo-600'
-                                        }`}
+                                                    ? 'cursor-not-allowed border-gray-200 bg-gray-50 text-gray-400'
+                                                    : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50 hover:text-indigo-600'
+                                            }`}
                                     />
                                 ))}
                             </div>
@@ -990,7 +1007,7 @@ export default function History({
                             onClick={handleAlertConfirm}
                             className={
                                 alertAction === 'force_delete' ||
-                                alertAction === 'trash'
+                                    alertAction === 'trash'
                                     ? 'bg-red-600 text-white hover:bg-red-700'
                                     : 'bg-green-600 text-white hover:bg-green-700'
                             }

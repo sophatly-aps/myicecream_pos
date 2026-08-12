@@ -237,6 +237,8 @@
             "inactive": "Inactive"
         },
         "start_date": "Start Date",
+        "rent_due_date": "Rent Due Date",
+        "rent_amount": "Rent Amount",
         "status_label": "Status",
         "action": "Action",
         "add_description": "Fill in the details of the new depot.",
