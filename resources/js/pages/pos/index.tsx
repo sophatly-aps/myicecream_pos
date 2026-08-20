@@ -434,8 +434,8 @@ export default function Index({
                                                     e.target.value === ''
                                                         ? 0
                                                         : Number(
-                                                              e.target.value,
-                                                          );
+                                                            e.target.value,
+                                                        );
 
                                                 // Allow 0 so the user can delete the current number before typing a new one
                                                 if (val >= 0) {
@@ -443,11 +443,11 @@ export default function Index({
                                                         prevCart.map(
                                                             (cartItem) =>
                                                                 cartItem.id ===
-                                                                item.id
+                                                                    item.id
                                                                     ? {
-                                                                          ...cartItem,
-                                                                          qty: val,
-                                                                      }
+                                                                        ...cartItem,
+                                                                        qty: val,
+                                                                    }
                                                                     : cartItem,
                                                         ),
                                                     );
@@ -605,11 +605,10 @@ export default function Index({
                                         onClick={() =>
                                             setPaymentStatus(status as any)
                                         }
-                                        className={`flex-1 rounded-md border px-2 py-1 text-[10px] font-bold uppercase transition-all ${
-                                            paymentStatus === status
-                                                ? 'border-slate-800 bg-slate-800 text-white'
-                                                : 'border-slate-200 bg-white text-slate-500 hover:bg-slate-50'
-                                        }`}
+                                        className={`flex-1 rounded-md border px-2 py-1 text-[10px] font-bold uppercase transition-all ${paymentStatus === status
+                                            ? 'border-slate-800 bg-slate-800 text-white'
+                                            : 'border-slate-200 bg-white text-slate-500 hover:bg-slate-50'
+                                            }`}
                                     >
                                         {status === 'paid' && t('pos.paid')}
                                         {status === 'partial' &&
@@ -799,7 +798,23 @@ export default function Index({
                             </div>
 
                             {/* Totals */}
-                            <div className="flex justify-end border-t-2 border-gray-200 pt-4">
+                            <div className="flex justify-between border-t-2 border-gray-200 pt-4">
+                                {/* Left Side Note: Customer Total Balances */}
+                                <div className="w-[38%] text-[11px] text-gray-500">
+                                    {(lastOrder.customer_total_due > 0 || lastOrder.customer_total_paid > 0) && (
+                                        <div className="rounded-md bg-gray-100 p-2">
+                                            <p className="mb-1 font-bold text-gray-700">កំណត់សម្គាល់</p>
+                                            <div className="flex justify-between">
+                                                <span>ប្រាក់បានបង់៖</span>
+                                                <span className="font-bold text-green-600">{currency}{Number(lastOrder.customer_total_paid || 0).toFixed(2)}</span>
+                                            </div>
+                                            <div className="flex justify-between">
+                                                <span>ប្រាក់ជំពាក់៖</span>
+                                                <span className="font-bold text-red-500">{currency}{Number(lastOrder.customer_total_due || 0).toFixed(2)}</span>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
                                 <div className="w-[60%] space-y-2 text-[13px] text-gray-600">
                                     <div className="flex justify-between">
                                         <span>{t('pos.sub_total')}</span>
@@ -856,6 +871,24 @@ export default function Index({
                                             ).toFixed(2)}
                                         </span>
                                     </div>
+                                    {(lastOrder.payment_status === 'due' || lastOrder.payment_status === 'partial') && (
+                                        <>
+                                            <div className="flex justify-between border-t border-gray-200 pt-2 mt-2">
+                                                <span className="text-[13px] text-gray-600">{t('pos.paid_amount')}</span>
+                                                <span className="text-[13px] font-bold text-green-600">
+                                                    {currency}
+                                                    {Number(lastOrder.paid_amount || 0).toFixed(2)}
+                                                </span>
+                                            </div>
+                                            <div className="flex justify-between mt-1">
+                                                <span className="text-[13px] text-gray-600">{t('pos.due')} (Remain)</span>
+                                                <span className="text-[13px] font-bold text-red-500">
+                                                    {currency}
+                                                    {Number(lastOrder.due_amount || 0).toFixed(2)}
+                                                </span>
+                                            </div>
+                                        </>
+                                    )}
                                 </div>
                             </div>
 

@@ -97,44 +97,68 @@
     </table>
 
     <div class="border-top" style="margin-top: 10px; padding-top: 5px;">
-        <table style="margin-top:0;">
+        <table style="width: 100%; margin-top: 0;">
             <tr>
-                <td align="right" class="bold">សរុបរង:</td>
-                <td align="right" class="bold">{{ $currency }}{{ number_format($order->sub_total, 2) }}</td>
-            </tr>
+                <td valign="top" align="left" style="font-size: 10px; padding-right: 5px; width: 45%;">
+                    @if ($order->customer_total_due > 0 || $order->customer_total_paid > 0)
+                        <div style="background-color: #f3f4f6; padding: 5px; border-radius: 3px; border: 1px dashed #ccc;">
+                            <u style="font-weight: bold;">កំណត់សម្គាល់៖</u><br>
+                            សរុបបានបង់៖<br>
+                            <b>{{ $currency }}{{ number_format($order->customer_total_paid, 2) }}</b><br>
+                            សរុបជំពាក់៖<br>
+                            <b style="color: #dc2626;">{{ $currency }}{{ number_format($order->customer_total_due, 2) }}</b>
+                        </div>
+                    @endif
+                </td>
+                <td valign="top" align="right">
+                    <table style="margin-top:0; width: 100%;">
+                        <tr>
+                            <td align="right" class="bold">សរុបរង៖</td>
+                            <td align="right" class="bold">{{ $currency }}{{ number_format($order->sub_total, 2) }}</td>
+                        </tr>
 
-            @if ($order->tax_amount > 0)
-                <tr>
-                    <td align="right">ពន្ធ:</td>
-                    <td align="right">{{ $currency }}{{ number_format($order->tax_amount, 2) }}</td>
-                </tr>
-            @endif
+                        @if ($order->tax_amount > 0)
+                            <tr>
+                                <td align="right">ពន្ធ៖</td>
+                                <td align="right">{{ $currency }}{{ number_format($order->tax_amount, 2) }}</td>
+                            </tr>
+                        @endif
 
-            @if ($order->discount_amount > 0)
-                <tr>
-                    <td align="right">បញ្ចុះតម្លៃ:</td>
-                    <td align="right">- {{ $currency }}{{ number_format($order->discount_amount, 2) }}</td>
-                </tr>
-            @endif
+                        @if ($order->discount_amount > 0)
+                            <tr>
+                                <td align="right">បញ្ចុះតម្លៃ៖</td>
+                                <td align="right">- {{ $currency }}{{ number_format($order->discount_amount, 2) }}</td>
+                            </tr>
+                        @endif
 
-            @if ($order->transport_fee > 0)
-                <tr>
-                    <td align="right">ដឹកជញ្ជូន:</td>
-                    <td align="right">{{ $currency }}{{ number_format($order->transport_fee, 2) }}</td>
-                </tr>
-            @endif
+                        @if ($order->transport_fee > 0)
+                            <tr>
+                                <td align="right">ដឹកជញ្ជូន៖</td>
+                                <td align="right">{{ $currency }}{{ number_format($order->transport_fee, 2) }}</td>
+                            </tr>
+                        @endif
 
-            <tr>
-                <td align="right" class="bold">សរុបរួម:</td>
-                <td align="right" class="bold">{{ $currency }}{{ number_format($order->total_amount, 2) }}</td>
-            </tr>
-            <tr>
-                <td align="right">ប្រាក់ទទួល:</td>
-                <td align="right">{{ $currency }}{{ number_format($order->paid_amount, 2) }}</td>
-            </tr>
-            <tr>
-                <td align="right">ប្រាក់អាប់:</td>
-                <td align="right">{{ $currency }}{{ number_format($order->change_amount, 2) }}</td>
+                        <tr>
+                            <td align="right" class="bold">សរុបរួម៖</td>
+                            <td align="right" class="bold">{{ $currency }}{{ number_format($order->total_amount, 2) }}</td>
+                        </tr>
+                        <tr>
+                            <td align="right">ប្រាក់ទទួល៖</td>
+                            <td align="right">{{ $currency }}{{ number_format($order->paid_amount, 2) }}</td>
+                        </tr>
+                        @if ($order->payment_status === 'due' || $order->payment_status === 'partial')
+                            <tr>
+                                <td align="right">ប្រាក់ជំពាក់៖</td>
+                                <td align="right">{{ $currency }}{{ number_format($order->due_amount, 2) }}</td>
+                            </tr>
+                        @else
+                            <tr>
+                                <td align="right">ប្រាក់អាប់៖</td>
+                                <td align="right">{{ $currency }}{{ number_format($order->change_amount, 2) }}</td>
+                            </tr>
+                        @endif
+                    </table>
+                </td>
             </tr>
         </table>
     </div>

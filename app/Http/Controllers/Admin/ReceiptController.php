@@ -42,6 +42,11 @@ class ReceiptController extends Controller
         $company_name = $settings['name'];
         $order = Order::with(['details.product', 'customer', 'cashier'])->findOrFail($id);
 
+        $customerTotalDue = \App\Models\Order::where('customer_id', $order->customer_id)->sum('due_amount');
+        $customerTotalPaid = \App\Models\Order::where('customer_id', $order->customer_id)->sum('paid_amount');
+        $order->setAttribute('customer_total_due', $customerTotalDue);
+        $order->setAttribute('customer_total_paid', $customerTotalPaid);
+
         return view('pdf.print', compact('order', 'company_name', 'currency'));
     }
 }

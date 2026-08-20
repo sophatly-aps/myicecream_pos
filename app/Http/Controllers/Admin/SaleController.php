@@ -107,6 +107,11 @@ class SaleController extends Controller
 
             $order->load(['details.product', 'customer', 'cashier']);
 
+            $customerTotalDue = \App\Models\Order::where('customer_id', $order->customer_id)->sum('due_amount');
+            $customerTotalPaid = \App\Models\Order::where('customer_id', $order->customer_id)->sum('paid_amount');
+            $order->setAttribute('customer_total_due', $customerTotalDue);
+            $order->setAttribute('customer_total_paid', $customerTotalPaid);
+
             if ($request->wantsJson() || $request->ajax()) {
                 return response()->json([
                     'success' => true,
@@ -219,7 +224,12 @@ class SaleController extends Controller
     {
         $settings = Setting::pluck('value', 'key')->toArray();
         $currency = $settings['currency_symbol'] ?? '$';
-        $order = Order::with('details.product', 'cashier')->findOrFail($id);
+        $order = Order::with('details.product', 'cashier', 'customer')->findOrFail($id);
+
+        $customerTotalDue = \App\Models\Order::where('customer_id', $order->customer_id)->sum('due_amount');
+        $customerTotalPaid = \App\Models\Order::where('customer_id', $order->customer_id)->sum('paid_amount');
+        $order->setAttribute('customer_total_due', $customerTotalDue);
+        $order->setAttribute('customer_total_paid', $customerTotalPaid);
 
         // Setup mPDF with Khmer Font support
         $defaultConfig = (new ConfigVariables)->getDefaults();
